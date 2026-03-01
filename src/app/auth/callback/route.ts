@@ -36,11 +36,9 @@ export async function GET(request: Request) {
       }
 
       const forwardedHost = request.headers.get("x-forwarded-host");
-      const isLocalEnv = process.env.NODE_ENV === "development";
-      if (isLocalEnv) {
-        return NextResponse.redirect(`${origin}${next}`);
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`);
+      const forwardedProto = request.headers.get("x-forwarded-proto") ?? "https";
+      if (forwardedHost) {
+        return NextResponse.redirect(`${forwardedProto}://${forwardedHost}${next}`);
       } else {
         return NextResponse.redirect(`${origin}${next}`);
       }
@@ -48,5 +46,8 @@ export async function GET(request: Request) {
   }
 
   // Auth code error — redirect to error page or login
-  return NextResponse.redirect(`${origin}/login?error=auth`);
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const forwardedProto = request.headers.get("x-forwarded-proto") ?? "https";
+  const baseUrl = forwardedHost ? `${forwardedProto}://${forwardedHost}` : origin;
+  return NextResponse.redirect(`${baseUrl}/login?error=auth`);
 }
