@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { trackEvent } from "@/lib/analytics";
 
 interface BadgeUnlockToastProps {
   show: boolean;
@@ -9,6 +11,12 @@ interface BadgeUnlockToastProps {
 }
 
 export default function BadgeUnlockToast({ show, label, rarity }: BadgeUnlockToastProps) {
+  useEffect(() => {
+    if (show) {
+      trackEvent("badge_earned", { badge_label: label, badge_rarity: rarity });
+    }
+  }, [show, label, rarity]);
+
   const rarityColor =
     rarity === "legendary" ? "rgba(250,204,21,0.7)"
     : rarity === "rare" ? "rgba(52,211,153,0.6)"
