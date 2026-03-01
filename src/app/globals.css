@@ -1,0 +1,242 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-success: #4ADE80;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Base                                                               */
+/* ------------------------------------------------------------------ */
+
+html, body {
+  overscroll-behavior: none;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+body {
+  background: #080808;
+  color: rgba(255, 255, 255, 0.75);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Prevent text selection on UI chrome, keep it on content */
+button, nav, .glass {
+  -webkit-user-select: none;
+  user-select: none;
+}
+.chat-message, article, p {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Scrollbar — near-invisible                                         */
+/* ------------------------------------------------------------------ */
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Slider — thin, glowing                                             */
+/* ------------------------------------------------------------------ */
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(196, 149, 106, 0.6);
+  cursor: pointer;
+  border: 2px solid rgba(10, 10, 10, 0.8);
+  box-shadow: 0 0 20px rgba(196, 149, 106, 0.2), 0 0 6px rgba(196, 149, 106, 0.3);
+  transition: box-shadow 0.4s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 30px rgba(196, 149, 106, 0.3), 0 0 10px rgba(196, 149, 106, 0.4);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Ambient background animation keyframes                             */
+/* ------------------------------------------------------------------ */
+
+@keyframes drift1 {
+  0%, 100% { transform: translate(-50%, 0%) scale(1); opacity: 0.45; }
+  25%      { transform: translate(-46%, -4%) scale(1.08); opacity: 0.6; }
+  50%      { transform: translate(-54%, 3%) scale(0.94); opacity: 0.35; }
+  75%      { transform: translate(-48%, -1%) scale(1.04); opacity: 0.55; }
+}
+
+@keyframes drift2 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.35; }
+  33%      { transform: translate(-3%, 4%) scale(1.06); opacity: 0.5; }
+  66%      { transform: translate(2%, -3%) scale(0.92); opacity: 0.28; }
+}
+
+@keyframes drift3 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.25; }
+  50%      { transform: translate(3%, -2%) scale(1.1); opacity: 0.4; }
+}
+
+@keyframes drift4 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.2; }
+  40%      { transform: translate(-2%, 3%) scale(1.05); opacity: 0.35; }
+  80%      { transform: translate(1%, -2%) scale(0.96); opacity: 0.18; }
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.2; transform: translate(-50%, -50%) scale(1); }
+  50%      { opacity: 0.4; transform: translate(-50%, -50%) scale(1.06); }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Ambient orbs                                                       */
+/* ------------------------------------------------------------------ */
+
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform, opacity;
+}
+
+/* Warm amber — primary */
+.ambient-orb-1 {
+  top: 12%;
+  left: 50%;
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, rgba(196, 149, 106, 0.06) 0%, rgba(180, 130, 80, 0.02) 45%, transparent 70%);
+  filter: blur(80px);
+  animation: drift1 30s ease-in-out infinite;
+}
+
+/* Dusty rose — subtle accent */
+.ambient-orb-2 {
+  bottom: 20%;
+  right: 10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(184, 134, 139, 0.04) 0%, rgba(168, 123, 128, 0.01) 45%, transparent 70%);
+  filter: blur(90px);
+  animation: drift2 38s ease-in-out infinite;
+}
+
+/* Sage green — subtle accent */
+.ambient-orb-3 {
+  top: 50%;
+  left: 5%;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(139, 158, 139, 0.035) 0%, rgba(122, 143, 122, 0.01) 45%, transparent 70%);
+  filter: blur(100px);
+  animation: drift3 45s ease-in-out infinite;
+}
+
+/* Deep amber — secondary warmth */
+.ambient-orb-4 {
+  top: 70%;
+  right: 30%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(160, 110, 60, 0.03) 0%, transparent 60%);
+  filter: blur(90px);
+  animation: drift4 50s ease-in-out infinite;
+}
+
+/* Center breathing glow */
+.ambient-glow {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1000px;
+  height: 1000px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(196, 149, 106, 0.025) 0%, transparent 50%);
+  animation: breathe 16s ease-in-out infinite;
+  filter: blur(60px);
+}
+
+/* Vignette overlay */
+.ambient-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(8, 8, 8, 0.5) 100%);
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Glass container utility                                            */
+/* ------------------------------------------------------------------ */
+
+.glass {
+  background: rgba(255, 255, 255, 0.025);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.035);
+  border-radius: 24px;
+  transition: transform 0.15s ease, background 0.3s ease;
+}
+
+a .glass:active,
+button .glass:active,
+a.glass:active,
+button.glass:active {
+  transform: scale(0.98);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.glass-subtle {
+  background: rgba(255, 255, 255, 0.015);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.025);
+  border-radius: 24px;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Soft glow on interactive elements                                  */
+/* ------------------------------------------------------------------ */
+
+.glow-hover {
+  transition: box-shadow 0.5s ease, background 0.5s ease;
+}
+
+.glow-hover:hover {
+  box-shadow: 0 0 40px rgba(196, 149, 106, 0.06);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Chat typing indicator                                              */
+/* ------------------------------------------------------------------ */
+
+@keyframes dotBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-5px); }
+}
