@@ -53,7 +53,7 @@ export function AgentRunCard({
       </div>
 
       {run && (
-        <div className="mt-3 flex gap-4 text-[11px] text-white/25">
+        <div className="mt-3 flex gap-4 text-[11px] text-white/45">
           <span>${Number(run.cost_usd).toFixed(4)}</span>
           <span>{(run.duration_ms / 1000).toFixed(1)}s</span>
           <span>{run.total_tokens} tok</span>

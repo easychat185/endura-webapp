@@ -37,7 +37,7 @@ export function ActionItemList({
       });
       onUpdate();
     } catch {
-      // silently fail
+      alert("Failed to update action item. Please try again.");
     } finally {
       setUpdating(null);
     }
@@ -61,7 +61,7 @@ export function ActionItemList({
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`rounded-lg px-3 py-1.5 text-[11px] font-medium transition-all ${
+              className={`rounded-lg px-3 py-2.5 min-h-[44px] text-[11px] font-medium transition-all ${
                 activeTab === tab
                   ? "bg-white/[0.08] text-white/70"
                   : "text-white/30 hover:text-white/50"
@@ -76,7 +76,7 @@ export function ActionItemList({
       {/* List */}
       <div className="mt-4 space-y-2 max-h-80 overflow-y-auto">
         {filtered.length === 0 && (
-          <p className="text-xs text-white/20 py-4 text-center">
+          <p className="text-xs text-white/40 py-4 text-center">
             No {activeTab.replace("_", " ")} items
           </p>
         )}
@@ -119,16 +119,16 @@ export function ActionItemList({
                     </p>
                   </div>
                   {item.description && (
-                    <p className="mt-1 text-[11px] text-white/25 line-clamp-2 pl-7">
+                    <p className="mt-1 text-[11px] text-white/45 line-clamp-2 pl-7">
                       {item.description}
                     </p>
                   )}
                   <div className="mt-1 flex gap-2 pl-7">
-                    <span className="text-[10px] text-white/15">
+                    <span className="text-[10px] text-white/40">
                       {item.agent_type}
                     </span>
                     {item.category && (
-                      <span className="text-[10px] text-white/15">
+                      <span className="text-[10px] text-white/40">
                         {item.category}
                       </span>
                     )}
@@ -141,14 +141,14 @@ export function ActionItemList({
                       <button
                         onClick={() => updateStatus(item.id, "completed")}
                         disabled={updating === item.id}
-                        className="rounded px-2 py-1 text-[10px] text-emerald-400/60 hover:bg-emerald-400/10 disabled:opacity-30"
+                        className="rounded px-3 py-2 text-xs text-emerald-400/60 hover:bg-emerald-400/10 disabled:opacity-30"
                       >
                         Done
                       </button>
                       <button
                         onClick={() => updateStatus(item.id, "dismissed")}
                         disabled={updating === item.id}
-                        className="rounded px-2 py-1 text-[10px] text-white/25 hover:bg-white/[0.05] disabled:opacity-30"
+                        className="rounded px-3 py-2 text-xs text-white/45 hover:bg-white/[0.05] disabled:opacity-30"
                       >
                         Skip
                       </button>
@@ -158,7 +158,7 @@ export function ActionItemList({
                     <button
                       onClick={() => updateStatus(item.id, "completed")}
                       disabled={updating === item.id}
-                      className="rounded px-2 py-1 text-[10px] text-emerald-400/60 hover:bg-emerald-400/10 disabled:opacity-30"
+                      className="rounded px-3 py-2 text-xs text-emerald-400/60 hover:bg-emerald-400/10 disabled:opacity-30"
                     >
                       Done
                     </button>
@@ -167,7 +167,7 @@ export function ActionItemList({
                     <button
                       onClick={() => updateStatus(item.id, "open")}
                       disabled={updating === item.id}
-                      className="rounded px-2 py-1 text-[10px] text-white/30 hover:bg-white/[0.05] disabled:opacity-30"
+                      className="rounded px-3 py-2 text-xs text-white/45 hover:bg-white/[0.05] disabled:opacity-30"
                     >
                       Reopen
                     </button>

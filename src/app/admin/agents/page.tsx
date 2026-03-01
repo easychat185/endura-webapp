@@ -123,7 +123,7 @@ export default function AgentDashboard() {
 
       await fetchData();
     } catch {
-      // silently fail
+      setError("Failed to run agent. Please try again.");
     } finally {
       setRunningAgents((prev) => {
         const next = new Set(prev);

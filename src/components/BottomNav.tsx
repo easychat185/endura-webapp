@@ -20,6 +20,8 @@ export default function BottomNav({
 }) {
   return (
     <nav
+      role="navigation"
+      aria-label="Main navigation"
       className="fixed bottom-0 left-0 z-50 w-full border-t border-white/[0.03] backdrop-blur-2xl"
       style={{ background: "rgba(8,8,8,0.6)", paddingBottom: "env(safe-area-inset-bottom)" }}
     >
@@ -30,17 +32,18 @@ export default function BottomNav({
             <Link
               key={label}
               href={href}
+              aria-current={active ? "page" : undefined}
               className={`flex flex-col items-center gap-1 rounded-xl px-3 py-2 transition-all duration-500 active:scale-95 ${
                 active
                   ? "text-amber-300/60"
-                  : "text-white/25 hover:text-white/35"
+                  : "text-white/50 hover:text-white/65"
               }`}
             >
               <Icon
                 className={`h-5 w-5 ${active ? "text-amber-300/60" : ""}`}
                 strokeWidth={active ? 2 : 1.5}
               />
-              <span className="text-[10px] font-light">{label}</span>
+              <span className="text-[11px] font-light">{label}</span>
             </Link>
           );
         })}

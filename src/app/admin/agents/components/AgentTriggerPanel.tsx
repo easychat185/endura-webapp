@@ -68,7 +68,7 @@ export function AgentTriggerPanel({
       }}
     >
       <h3 className="text-sm font-medium text-white/60">Run All Agents</h3>
-      <p className="mt-1 text-[11px] text-white/25">
+      <p className="mt-1 text-[11px] text-white/45">
         Runs all 5 specialized agents sequentially, then the master coordinator.
       </p>
 
@@ -94,7 +94,7 @@ export function AgentTriggerPanel({
                   ? "text-emerald-400/50"
                   : msg.includes("failed")
                     ? "text-red-400/50"
-                    : "text-white/25"
+                    : "text-white/45"
               }`}
             >
               {msg}

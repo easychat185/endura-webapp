@@ -48,7 +48,7 @@ export function TokenUsageChart({
       <div className="mt-5 space-y-2.5">
         {Object.entries(costPerAgent).map(([agent, cost]) => (
           <div key={agent} className="flex items-center gap-3">
-            <span className="w-16 text-[10px] text-white/30 text-right">
+            <span className="w-16 text-[10px] text-white/50 text-right">
               {AGENT_LABELS[agent] ?? agent}
             </span>
             <div className="flex-1 h-4 rounded bg-white/[0.03] overflow-hidden">
@@ -60,7 +60,7 @@ export function TokenUsageChart({
                 }}
               />
             </div>
-            <span className="w-14 text-[10px] text-white/25 text-right">
+            <span className="w-14 text-[10px] text-white/45 text-right">
               ${cost.toFixed(4)}
             </span>
           </div>

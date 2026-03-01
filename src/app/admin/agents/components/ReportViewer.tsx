@@ -22,7 +22,7 @@ const AGENT_LABELS: Record<string, string> = {
 // Recursively render any JSON value as readable UI
 function RenderValue({ value, depth = 0 }: { value: unknown; depth?: number }) {
   if (value === null || value === undefined) {
-    return <span className="text-white/15 italic">—</span>;
+    return <span className="text-white/40 italic">—</span>;
   }
 
   if (typeof value === "string") {
@@ -42,7 +42,7 @@ function RenderValue({ value, depth = 0 }: { value: unknown; depth?: number }) {
   }
 
   if (Array.isArray(value)) {
-    if (value.length === 0) return <span className="text-white/15 italic text-xs">empty</span>;
+    if (value.length === 0) return <span className="text-white/40 italic text-xs">empty</span>;
 
     // Array of strings — render as bullet list
     if (value.every((v) => typeof v === "string")) {
@@ -50,7 +50,7 @@ function RenderValue({ value, depth = 0 }: { value: unknown; depth?: number }) {
         <ul className="space-y-1 pl-1">
           {value.map((item, i) => (
             <li key={i} className="flex gap-2 text-xs text-white/40">
-              <span className="text-white/15 shrink-0">-</span>
+              <span className="text-white/40 shrink-0">-</span>
               <span className="leading-relaxed">{item}</span>
             </li>
           ))}
@@ -205,7 +205,7 @@ export function ReportViewer({
                         {new Date(report.created_at).toLocaleDateString()}{" "}
                         {new Date(report.created_at).toLocaleTimeString()}
                       </span>
-                      <span className="text-[10px] text-white/20">
+                      <span className="text-[10px] text-white/40">
                         {expandedId === report.id ? "Collapse" : "Expand"}
                       </span>
                     </div>
@@ -223,11 +223,11 @@ export function ReportViewer({
                       }}
                     >
                       {loadingReport ? (
-                        <p className="text-[11px] text-white/20">Loading report...</p>
+                        <p className="text-[11px] text-white/40">Loading report...</p>
                       ) : fullReport ? (
                         <RenderValue value={fullReport} />
                       ) : (
-                        <p className="text-[11px] text-white/20">
+                        <p className="text-[11px] text-white/40">
                           Could not load report.
                         </p>
                       )}
@@ -240,7 +240,7 @@ export function ReportViewer({
         ))}
 
         {reports.length === 0 && (
-          <p className="text-xs text-white/20 py-4 text-center">
+          <p className="text-xs text-white/40 py-4 text-center">
             No reports yet. Run an agent to generate one.
           </p>
         )}

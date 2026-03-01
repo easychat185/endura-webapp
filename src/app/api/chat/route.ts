@@ -97,12 +97,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Save user message
-    await supabase.from("messages").insert({
+    const { data: userMsgData } = await supabase.from("messages").insert({
       conversation_id: conversationId,
       user_id: user.id,
       sender: "user",
       content: message,
-    });
+    }).select("id").single();
+    const userMessageId = userMsgData?.id;
 
     // Parallelize remaining reads
     const [onboardingRes, priorSessionsRes, sessionMessagesRes] = await Promise.all([
@@ -197,19 +198,36 @@ export async function POST(request: NextRequest) {
             content: fullResponse,
           });
 
-          // Update message count (+2 for user + maya)
-          await supabase
-            .from("conversations")
-            .update({
-              message_count: conversation.message_count + 2,
-            })
-            .eq("id", conversationId);
+          // Update message count (+2 for user + maya) — atomic increment
+          await supabase.rpc("increment_message_count", {
+            conv_id: conversationId,
+            amount: 2,
+          });
 
           controller.enqueue(
             encoder.encode(`data: ${JSON.stringify({ done: true })}\n\n`)
           );
           controller.close();
         } catch (err) {
+          // Save partial response or roll back user message
+          try {
+            if (fullResponse.length > 0) {
+              await supabase.from("messages").insert({
+                conversation_id: conversationId,
+                user_id: user.id,
+                sender: "maya",
+                content: fullResponse + "\n\n[Response interrupted — please try again]",
+              });
+              await supabase.rpc("increment_message_count", {
+                conv_id: conversationId,
+                amount: 2,
+              });
+            } else if (userMessageId) {
+              await supabase.from("messages").delete().eq("id", userMessageId);
+            }
+          } catch {
+            // Best-effort cleanup
+          }
           controller.enqueue(
             encoder.encode(
               `data: ${JSON.stringify({ error: "Stream error" })}\n\n`
