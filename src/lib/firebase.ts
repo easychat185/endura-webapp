@@ -1,5 +1,5 @@
-import { initializeApp } from "firebase/app";
-import { getMessaging, getToken } from "firebase/messaging";
+import { initializeApp, type FirebaseApp } from "firebase/app";
+import { getMessaging, getToken, type Messaging } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -8,15 +8,27 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = initializeApp(firebaseConfig);
+let app: FirebaseApp | null = null;
+let messaging: Messaging | null = null;
 
-export const messaging =
-  typeof window !== "undefined" ? getMessaging(app) : null;
+function getFirebaseMessaging(): Messaging | null {
+  if (typeof window === "undefined") return null;
+  if (!firebaseConfig.projectId || !firebaseConfig.apiKey) return null;
+  if (messaging) return messaging;
+  try {
+    app = initializeApp(firebaseConfig);
+    messaging = getMessaging(app);
+    return messaging;
+  } catch {
+    return null;
+  }
+}
 
 export async function getFCMToken(): Promise<string | null> {
-  if (!messaging) return null;
+  const msg = getFirebaseMessaging();
+  if (!msg) return null;
   try {
-    const token = await getToken(messaging, {
+    const token = await getToken(msg, {
       vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
     });
     return token;
