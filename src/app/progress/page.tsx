@@ -387,12 +387,12 @@ export default function ProgressPage() {
 
         {/* Tab Bar */}
         <div className="mx-auto max-w-2xl px-5 sm:px-8 pb-2">
-          <div className="flex gap-1">
+          <div className="flex gap-1 overflow-x-auto scrollbar-hide">
             {tabs.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className="flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-normal transition-all duration-300"
+                className="flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-normal transition-all duration-300"
                 style={{
                   background: activeTab === tab.key ? "rgba(196,149,106,0.1)" : "transparent",
                   border: activeTab === tab.key ? "1px solid rgba(196,149,106,0.15)" : "1px solid transparent",

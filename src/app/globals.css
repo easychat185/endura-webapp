@@ -27,6 +27,15 @@ body {
   padding-top: env(safe-area-inset-top);
 }
 
+/* Hide scrollbars for horizontal scroll areas */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Prevent text selection on UI chrome, keep it on content */
 button, nav, .glass {
   -webkit-user-select: none;
