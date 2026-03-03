@@ -4,6 +4,7 @@ import "./globals.css";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import OfflineBanner from "@/components/OfflineBanner";
 import ClientProviders from "@/components/ClientProviders";
+import { LevelUpProvider } from "@/contexts/LevelUpContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,7 +44,7 @@ export default function RootLayout({
         <AnimatedBackground />
         <OfflineBanner />
         <ClientProviders />
-        {children}
+        <LevelUpProvider>{children}</LevelUpProvider>
       </body>
     </html>
   );

@@ -20,6 +20,7 @@ import { createClient } from "@/lib/supabase/client";
 import { fadeUp } from "@/lib/animations";
 import { trackEvent } from "@/lib/analytics";
 import { hapticLight } from "@/lib/capacitor";
+import { useLevelUp } from "@/contexts/LevelUpContext";
 
 /* ── Celebration particles ─────────────────────────────── */
 function CelebrationParticles() {
@@ -101,6 +102,7 @@ export default function ExerciseDetailPage() {
   const [audioEnabled, setAudioEnabled] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { playStep, stopAudio, pauseAudio, resumeAudio } = useGuidedAudio();
+  const { triggerLevelUp } = useLevelUp();
 
   // Load audio preference from localStorage
   useEffect(() => {
@@ -238,6 +240,7 @@ export default function ExerciseDetailPage() {
           if (xpRes.ok) {
             const xpData = await xpRes.json();
             setXpEarned(xpData.xpEarned || 0);
+            if (xpData.levelUp) triggerLevelUp(xpData.newLevel);
           }
         } catch {
           // XP award failed silently

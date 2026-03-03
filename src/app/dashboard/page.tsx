@@ -24,6 +24,7 @@ import StreakDisplay from "@/components/gamification/StreakDisplay";
 import XPProgressBar from "@/components/gamification/XPProgressBar";
 import DailyChallenges from "@/components/gamification/DailyChallenges";
 import EventBanner from "@/components/gamification/EventBanner";
+import { useLevelUp } from "@/contexts/LevelUpContext";
 
 interface DashboardData {
   profile: {
@@ -84,6 +85,7 @@ export default function DashboardPage() {
   const [showWeeklyRecap, setShowWeeklyRecap] = useState(false);
   const [cachedAt, setCachedAt] = useState<string | null>(null);
   const online = useOnlineStatus();
+  const { triggerLevelUp } = useLevelUp();
 
   const fetchDashboard = () => {
     setLoading(true);
@@ -122,6 +124,15 @@ export default function DashboardPage() {
             cachedAt: new Date().toISOString(),
           }));
         } catch { /* storage full */ }
+
+        // Catch-all level-up check: compare server level vs last known
+        if (d.gamification?.level) {
+          const stored = Number(localStorage.getItem("endura_last_level") || "0");
+          if (stored > 0 && d.gamification.level > stored) {
+            triggerLevelUp(d.gamification.level);
+          }
+          localStorage.setItem("endura_last_level", String(d.gamification.level));
+        }
 
         // Show weekly recap if it's a new week and there's data
         const lastRecapShown = localStorage.getItem("endura_last_recap_week");

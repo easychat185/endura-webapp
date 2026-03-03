@@ -1,17 +1,18 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { getLevelTitle } from "@/lib/gamification/levels";
+import { getLevelTitle, getTierForLevel } from "@/lib/gamification/levels";
 
 interface LevelUpModalProps {
   show: boolean;
   level: number;
+  isMilestone?: boolean;
   onClose: () => void;
 }
 
-function CelebrationParticles() {
-  const particles = Array.from({ length: 32 }, (_, i) => {
-    const angle = (i / 32) * 360;
+function CelebrationParticles({ count = 32 }: { count?: number }) {
+  const particles = Array.from({ length: count }, (_, i) => {
+    const angle = (i / count) * 360;
     const distance = 80 + Math.random() * 120;
     const x = Math.cos((angle * Math.PI) / 180) * distance;
     const y = Math.sin((angle * Math.PI) / 180) * distance;
@@ -41,8 +42,9 @@ function CelebrationParticles() {
   return <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">{particles}</div>;
 }
 
-export default function LevelUpModal({ show, level, onClose }: LevelUpModalProps) {
+export default function LevelUpModal({ show, level, isMilestone = false, onClose }: LevelUpModalProps) {
   const title = getLevelTitle(level);
+  const { tierName } = getTierForLevel(level);
 
   return (
     <AnimatePresence>
@@ -63,21 +65,23 @@ export default function LevelUpModal({ show, level, onClose }: LevelUpModalProps
             className="relative flex flex-col items-center text-center px-8 py-12"
             onClick={(e) => e.stopPropagation()}
           >
-            <CelebrationParticles />
+            <CelebrationParticles count={isMilestone ? 64 : 32} />
 
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: [0, 1.3, 1] }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="mb-6 flex h-24 w-24 items-center justify-center rounded-full"
+              className={`mb-6 flex items-center justify-center rounded-full ${isMilestone ? "h-28 w-28" : "h-24 w-24"}`}
               style={{
-                background: "rgba(245,158,11,0.12)",
-                border: "2px solid rgba(245,158,11,0.3)",
-                boxShadow: "0 0 60px rgba(245,158,11,0.15)",
+                background: isMilestone ? "rgba(245,158,11,0.18)" : "rgba(245,158,11,0.12)",
+                border: isMilestone ? "2px solid rgba(245,158,11,0.5)" : "2px solid rgba(245,158,11,0.3)",
+                boxShadow: isMilestone
+                  ? "0 0 80px rgba(245,158,11,0.25), 0 0 120px rgba(245,158,11,0.1)"
+                  : "0 0 60px rgba(245,158,11,0.15)",
               }}
             >
               <span
-                className="text-4xl font-light"
+                className={`font-light ${isMilestone ? "text-5xl" : "text-4xl"}`}
                 style={{ color: "rgba(245,158,11,0.8)" }}
               >
                 {level}
@@ -90,7 +94,7 @@ export default function LevelUpModal({ show, level, onClose }: LevelUpModalProps
               transition={{ delay: 0.4 }}
               className="text-2xl font-light tracking-wide text-white/90"
             >
-              Level Up!
+              {isMilestone ? "Milestone!" : "Level Up!"}
             </motion.h2>
 
             <motion.p
@@ -102,6 +106,18 @@ export default function LevelUpModal({ show, level, onClose }: LevelUpModalProps
             >
               {title}
             </motion.p>
+
+            {isMilestone && (
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="mt-1 text-sm font-light"
+                style={{ color: "rgba(196,149,106,0.5)" }}
+              >
+                {tierName}
+              </motion.p>
+            )}
 
             <motion.button
               initial={{ opacity: 0, y: 10 }}

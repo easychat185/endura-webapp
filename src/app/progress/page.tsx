@@ -12,15 +12,18 @@ import {
   Brain,
   Award,
   Users,
+  Map,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { ProgressSkeleton } from "@/components/LoadingSkeleton";
 import { fadeUpIndexed, staggerContainer } from "@/lib/animations";
 import XPGainToast from "@/components/gamification/XPGainToast";
 import XPProgressBar from "@/components/gamification/XPProgressBar";
+import { useLevelUp } from "@/contexts/LevelUpContext";
 import BadgeGrid from "@/components/gamification/BadgeGrid";
 import LeaderboardPodium from "@/components/gamification/LeaderboardPodium";
 import LeaderboardRow from "@/components/gamification/LeaderboardRow";
+import LevelRoadmap from "@/components/gamification/LevelRoadmap";
 
 /* ------------------------------------------------------------------ */
 /*  Bar Chart Component                                                */
@@ -195,7 +198,7 @@ interface LeaderboardEntry {
   rank: number;
 }
 
-type Tab = "scores" | "badges" | "leaderboard";
+type Tab = "scores" | "badges" | "leaderboard" | "roadmap";
 
 /* ------------------------------------------------------------------ */
 /*  Main Progress Page                                                 */
@@ -221,6 +224,7 @@ export default function ProgressPage() {
   const [showXPToast, setShowXPToast] = useState(false);
   const [xpGained, setXpGained] = useState(0);
   const online = useOnlineStatus();
+  const { triggerLevelUp } = useLevelUp();
 
   const fetchProgress = () => {
     if (!online) {
@@ -311,6 +315,7 @@ export default function ProgressPage() {
           setShowXPToast(true);
           setTimeout(() => setShowXPToast(false), 2500);
           fetchGamification();
+          if (result.xp.levelUp) triggerLevelUp(result.xp.newLevel);
         }
 
         // Refresh data
@@ -353,6 +358,7 @@ export default function ProgressPage() {
     { key: "scores", label: "Scores", icon: <BarChart3 className="h-3.5 w-3.5" /> },
     { key: "badges", label: "Badges", icon: <Award className="h-3.5 w-3.5" /> },
     { key: "leaderboard", label: "Leaderboard", icon: <Users className="h-3.5 w-3.5" /> },
+    { key: "roadmap", label: "Roadmap", icon: <Map className="h-3.5 w-3.5" /> },
   ];
 
   return (
@@ -698,6 +704,13 @@ export default function ProgressPage() {
                     </div>
                   )}
                 </div>
+              </motion.section>
+            )}
+
+            {/* ── ROADMAP TAB ─────────────────────────── */}
+            {activeTab === "roadmap" && gamData && (
+              <motion.section custom={1} variants={fadeUpIndexed}>
+                <LevelRoadmap currentLevel={gamData.level} totalXP={gamData.totalXP} />
               </motion.section>
             )}
           </>
