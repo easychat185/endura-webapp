@@ -1,23 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAgent, ALL_AGENT_TYPES } from "@/lib/agents/registry";
 import type { AgentType } from "@/lib/agents/types";
-import { timingSafeEqual } from "crypto";
-
-function checkAuth(request: NextRequest): boolean {
-  const secret =
-    request.headers.get("x-admin-secret") ||
-    request.cookies.get("admin_token")?.value;
-  const expected = process.env.AGENT_ADMIN_SECRET;
-  if (!secret || !expected) return false;
-  const a = Buffer.from(secret);
-  const b = Buffer.from(expected);
-  return a.length === b.length && timingSafeEqual(a, b);
-}
+import { requireAdminAuth } from "@/lib/agents/admin-auth";
+import { isValidAgentDepth, isValidAgentFocus } from "@/lib/validation";
 
 export async function POST(request: NextRequest) {
-  if (!checkAuth(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authErr = requireAdminAuth(request);
+  if (authErr) return authErr;
 
   try {
     const { agentType, depth, focus } = await request.json();
@@ -29,8 +18,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const validDepth = isValidAgentDepth(depth) ? depth : "standard";
+    const validFocus = focus !== undefined && isValidAgentFocus(focus) ? focus : undefined;
+
     const agent = getAgent(agentType as AgentType);
-    const result = await agent.run({ depth, focus });
+    const result = await agent.run({ depth: validDepth, focus: validFocus });
 
     return NextResponse.json(result);
   } catch (error) {

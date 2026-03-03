@@ -256,12 +256,12 @@ export default function ExerciseDetailPage() {
               <h1 className="text-base font-normal tracking-wide text-white/80">
                 {exercise.title}
               </h1>
-              <p className="text-xs font-light text-white/30">
+              <p className="text-xs font-light text-white/50">
                 Step {currentStep + 1} of {totalSteps}
               </p>
             </div>
           </div>
-          <span className="flex items-center gap-1.5 text-xs font-light text-white/25">
+          <span className="flex items-center gap-1.5 text-xs font-light text-white/50">
             <Clock className="h-3.5 w-3.5" />
             {exercise.duration}
           </span>
@@ -400,7 +400,7 @@ export default function ExerciseDetailPage() {
                         setTimeLeft(step.durationSeconds ?? 0);
                         setIsRunning(false);
                       }}
-                      className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.03] text-white/30 transition-all hover:bg-white/[0.06]"
+                      className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.03] text-white/50 transition-all hover:bg-white/[0.06]"
                     >
                       <RotateCcw className="h-5 w-5" />
                     </button>
@@ -422,7 +422,7 @@ export default function ExerciseDetailPage() {
 
                     <button
                       onClick={handleNextStep}
-                      className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.03] text-white/30 transition-all hover:bg-white/[0.06]"
+                      className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.03] text-white/50 transition-all hover:bg-white/[0.06]"
                     >
                       <SkipForward className="h-5 w-5" />
                     </button>

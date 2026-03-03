@@ -18,9 +18,11 @@ const STATUS_TABS = ["open", "in_progress", "completed", "dismissed"] as const;
 export function ActionItemList({
   items,
   onUpdate,
+  onError,
 }: {
   items: ActionItem[];
   onUpdate: () => void;
+  onError?: (message: string) => void;
 }) {
   const [activeTab, setActiveTab] = useState<string>("open");
   const [updating, setUpdating] = useState<string | null>(null);
@@ -30,14 +32,20 @@ export function ActionItemList({
   const updateStatus = async (id: string, newStatus: string) => {
     setUpdating(id);
     try {
-      await fetch("/api/agents/action-items", {
+      const res = await fetch("/api/agents/action-items", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, status: newStatus }),
       });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Update failed (${res.status})`);
+      }
       onUpdate();
-    } catch {
-      alert("Failed to update action item. Please try again.");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to update action item.";
+      if (onError) onError(msg);
+      else console.error(msg);
     } finally {
       setUpdating(null);
     }
@@ -64,7 +72,7 @@ export function ActionItemList({
               className={`rounded-lg px-3 py-2.5 min-h-[44px] text-[11px] font-medium transition-all ${
                 activeTab === tab
                   ? "bg-white/[0.08] text-white/70"
-                  : "text-white/30 hover:text-white/50"
+                  : "text-white/50 hover:text-white/60"
               }`}
             >
               {tab.replace("_", " ")} ({count})
@@ -81,7 +89,7 @@ export function ActionItemList({
           </p>
         )}
 
-        {filtered
+        {[...filtered]
           .sort((a, b) => b.priority - a.priority)
           .map((item) => (
             <div
@@ -141,14 +149,14 @@ export function ActionItemList({
                       <button
                         onClick={() => updateStatus(item.id, "completed")}
                         disabled={updating === item.id}
-                        className="rounded px-3 py-2 text-xs text-emerald-400/60 hover:bg-emerald-400/10 disabled:opacity-30"
+                        className="rounded px-3 py-2 min-h-[44px] text-xs text-emerald-400/60 hover:bg-emerald-400/10 disabled:opacity-30"
                       >
                         Done
                       </button>
                       <button
                         onClick={() => updateStatus(item.id, "dismissed")}
                         disabled={updating === item.id}
-                        className="rounded px-3 py-2 text-xs text-white/45 hover:bg-white/[0.05] disabled:opacity-30"
+                        className="rounded px-3 py-2 min-h-[44px] text-xs text-white/45 hover:bg-white/[0.05] disabled:opacity-30"
                       >
                         Skip
                       </button>
@@ -158,7 +166,7 @@ export function ActionItemList({
                     <button
                       onClick={() => updateStatus(item.id, "completed")}
                       disabled={updating === item.id}
-                      className="rounded px-3 py-2 text-xs text-emerald-400/60 hover:bg-emerald-400/10 disabled:opacity-30"
+                      className="rounded px-3 py-2 min-h-[44px] text-xs text-emerald-400/60 hover:bg-emerald-400/10 disabled:opacity-30"
                     >
                       Done
                     </button>
@@ -167,7 +175,7 @@ export function ActionItemList({
                     <button
                       onClick={() => updateStatus(item.id, "open")}
                       disabled={updating === item.id}
-                      className="rounded px-3 py-2 text-xs text-white/45 hover:bg-white/[0.05] disabled:opacity-30"
+                      className="rounded px-3 py-2 min-h-[44px] text-xs text-white/45 hover:bg-white/[0.05] disabled:opacity-30"
                     >
                       Reopen
                     </button>

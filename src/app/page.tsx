@@ -102,19 +102,19 @@ export default function Home() {
           <div className="hidden items-center gap-10 md:flex">
             <button
               onClick={() => scrollTo("how-it-works")}
-              className="text-sm font-light tracking-wide text-white/30 transition-all duration-500 hover:text-white/50"
+              className="text-sm font-light tracking-wide text-white/50 transition-all duration-500 hover:text-white/60"
             >
               How It Works
             </button>
             <button
               onClick={() => scrollTo("about")}
-              className="text-sm font-light tracking-wide text-white/30 transition-all duration-500 hover:text-white/50"
+              className="text-sm font-light tracking-wide text-white/50 transition-all duration-500 hover:text-white/60"
             >
               About
             </button>
             <Link
               href="/login"
-              className="text-sm font-light tracking-wide text-white/30 transition-all duration-500 hover:text-white/50"
+              className="text-sm font-light tracking-wide text-white/50 transition-all duration-500 hover:text-white/60"
             >
               Login
             </Link>
@@ -142,19 +142,19 @@ export default function Home() {
           >
             <button
               onClick={() => scrollTo("how-it-works")}
-              className="block w-full py-3 text-left text-sm font-light tracking-wide text-white/30 transition-all duration-500 hover:text-white/50"
+              className="block w-full py-3 text-left text-sm font-light tracking-wide text-white/50 transition-all duration-500 hover:text-white/60"
             >
               How It Works
             </button>
             <button
               onClick={() => scrollTo("about")}
-              className="block w-full py-3 text-left text-sm font-light tracking-wide text-white/30 transition-all duration-500 hover:text-white/50"
+              className="block w-full py-3 text-left text-sm font-light tracking-wide text-white/50 transition-all duration-500 hover:text-white/60"
             >
               About
             </button>
             <Link
               href="/login"
-              className="block py-3 text-sm font-light tracking-wide text-white/30 transition-all duration-500 hover:text-white/50"
+              className="block py-3 text-sm font-light tracking-wide text-white/50 transition-all duration-500 hover:text-white/60"
               onClick={() => setMobileMenuOpen(false)}
             >
               Login
@@ -437,7 +437,7 @@ export default function Home() {
                 <p className="flex-1 font-light italic leading-relaxed text-white/45">
                   &ldquo;{quote}&rdquo;
                 </p>
-                <p className="mt-6 text-sm font-light text-white/30">
+                <p className="mt-6 text-sm font-light text-white/50">
                   &mdash; {author}
                 </p>
               </motion.div>

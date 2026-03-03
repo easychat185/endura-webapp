@@ -94,7 +94,7 @@ export default function ExercisesPage() {
               <h1 className="text-xl font-light tracking-wide text-white/80">
                 Exercises
               </h1>
-              <p className="text-xs font-light text-white/30">
+              <p className="text-xs font-light text-white/50">
                 {exercises.filter((e) => !isLocked(e)).length} unlocked
               </p>
             </div>
@@ -175,7 +175,7 @@ export default function ExercisesPage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-normal text-white/70 truncate">{ex.title}</p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <p className="text-xs font-light text-white/30">{ex.duration} · {ex.difficulty}</p>
+                        <p className="text-xs font-light text-white/50">{ex.duration} · {ex.difficulty}</p>
                         <span className="text-xs font-light" style={{ color: "rgba(250,204,21,0.4)" }}>
                           +{ex.xpReward} XP
                         </span>
@@ -240,13 +240,13 @@ export default function ExercisesPage() {
                             <h3 className="text-base font-normal tracking-wide text-white/75">
                               {exercise.title}
                             </h3>
-                            <ChevronRight className="h-4 w-4 text-white/20" />
+                            <ChevronRight className="h-4 w-4 text-white/50" />
                           </div>
                           <p className="mt-2 text-sm font-light leading-relaxed text-white/45">
                             {exercise.description}
                           </p>
                           <div className="mt-3 flex items-center gap-4">
-                            <span className="flex items-center gap-1.5 text-xs font-light text-white/30">
+                            <span className="flex items-center gap-1.5 text-xs font-light text-white/50">
                               <Clock className="h-3.5 w-3.5" />
                               {exercise.duration}
                             </span>

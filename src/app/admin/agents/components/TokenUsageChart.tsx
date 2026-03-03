@@ -1,5 +1,7 @@
 "use client";
 
+import { AGENT_SHORT_LABELS } from "@/lib/agents/types";
+
 const AGENT_COLORS: Record<string, string> = {
   "market-research": "rgba(59,130,246,0.6)",
   "marketing-content": "rgba(168,85,247,0.6)",
@@ -7,15 +9,6 @@ const AGENT_COLORS: Record<string, string> = {
   "ui-ux": "rgba(34,197,94,0.6)",
   "dr-maya-knowledge": "rgba(250,204,21,0.6)",
   "master-coordinator": "rgba(196,149,106,0.6)",
-};
-
-const AGENT_LABELS: Record<string, string> = {
-  "market-research": "Market",
-  "marketing-content": "Marketing",
-  "code-quality": "Code",
-  "ui-ux": "UI/UX",
-  "dr-maya-knowledge": "Dr. Maya",
-  "master-coordinator": "Coord.",
 };
 
 export function TokenUsageChart({
@@ -27,7 +20,7 @@ export function TokenUsageChart({
   cost7d: number;
   cost30d: number;
 }) {
-  const maxCost = Math.max(...Object.values(costPerAgent), 0.001);
+  const maxCost = Object.values(costPerAgent).reduce((a, b) => Math.max(a, b), 0.001);
 
   return (
     <div
@@ -49,7 +42,7 @@ export function TokenUsageChart({
         {Object.entries(costPerAgent).map(([agent, cost]) => (
           <div key={agent} className="flex items-center gap-3">
             <span className="w-16 text-[10px] text-white/50 text-right">
-              {AGENT_LABELS[agent] ?? agent}
+              {AGENT_SHORT_LABELS[agent as keyof typeof AGENT_SHORT_LABELS] ?? agent}
             </span>
             <div className="flex-1 h-4 rounded bg-white/[0.03] overflow-hidden">
               <div

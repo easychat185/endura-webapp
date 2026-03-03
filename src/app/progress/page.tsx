@@ -48,7 +48,7 @@ function BarChart({
       </div>
 
       {data.length === 0 ? (
-        <p className="text-center text-sm font-light text-white/25 py-8">
+        <p className="text-center text-sm font-light text-white/50 py-8">
           No data yet. Log your first scores below.
         </p>
       ) : (
@@ -94,7 +94,7 @@ function BarChart({
 
                   <span
                     className={`text-xs font-light ${
-                      isCurrent ? "text-amber-300/50" : "text-white/30"
+                      isCurrent ? "text-amber-300/50" : "text-white/50"
                     }`}
                   >
                     {point.week}
@@ -370,7 +370,7 @@ export default function ProgressPage() {
             <h1 className="text-xl font-light tracking-wide text-white/80">
               Progress
             </h1>
-            <p className="text-sm font-light text-white/30">
+            <p className="text-sm font-light text-white/50">
               Track your journey
             </p>
           </div>
@@ -469,7 +469,7 @@ export default function ProgressPage() {
                   </div>
                   <div className="mt-2 flex items-center justify-between">
                     <span className="text-xs font-light text-amber-300/45">{progressPercent}%</span>
-                    <span className="text-xs font-light text-white/25">
+                    <span className="text-xs font-light text-white/50">
                       {totalWeeks} weeks total
                     </span>
                   </div>
@@ -685,7 +685,7 @@ export default function ProgressPage() {
                           )}
                         </>
                       ) : (
-                        <p className="text-center text-sm font-light text-white/25 py-8">
+                        <p className="text-center text-sm font-light text-white/50 py-8">
                           No rankings yet. Opt in from Settings to appear on the leaderboard.
                         </p>
                       )}

@@ -70,14 +70,14 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
         />
       </div>
       <div className="flex items-center justify-between px-5 py-2 sm:px-8">
-        <span className="text-xs font-light text-white/25">
+        <span className="text-xs font-light text-white/50">
           {step <= 16
             ? `Question ${step} of 16`
             : step === 17
               ? "Analyzing..."
               : "Your Results"}
         </span>
-        <span className="text-xs font-light text-white/25">{percentage}%</span>
+        <span className="text-xs font-light text-white/50">{percentage}%</span>
       </div>
     </div>
   );
@@ -156,7 +156,7 @@ function SliderQuestion({
         onChange={(e) => onChange(Number(e.target.value))}
         className="w-full cursor-pointer"
       />
-      <div className="mt-3 flex items-center justify-between text-sm font-light text-white/25">
+      <div className="mt-3 flex items-center justify-between text-sm font-light text-white/50">
         <span>{minLabel}</span>
         <span>{maxLabel}</span>
       </div>
@@ -379,11 +379,11 @@ export default function OnboardingPage() {
             </p>
 
             <div className="mt-10 flex flex-col items-center gap-4">
-              <div className="flex items-center gap-2 text-sm font-light text-white/30">
+              <div className="flex items-center gap-2 text-sm font-light text-white/50">
                 <Clock className="h-4 w-4 text-amber-300/25" />
                 <span>This takes about 3 minutes</span>
               </div>
-              <div className="flex items-center gap-2 text-sm font-light text-white/30">
+              <div className="flex items-center gap-2 text-sm font-light text-white/50">
                 <Lock className="h-4 w-4 text-amber-300/25" />
                 <span>Your answers are encrypted and never shared</span>
               </div>
@@ -430,7 +430,7 @@ export default function OnboardingPage() {
                     setAgeError("");
                   }
                 }}
-                className="w-full rounded-2xl px-5 py-4 text-center text-2xl font-extralight text-white/80 placeholder:text-white/20 outline-none transition-colors focus:[border-color:rgba(196,149,106,0.15)]"
+                className="w-full rounded-2xl px-5 py-4 text-center text-2xl font-extralight text-white/80 placeholder:text-white/40 outline-none transition-colors focus:[border-color:rgba(196,149,106,0.15)]"
                 style={{
                   background: "rgba(255,255,255,0.03)",
                   border: "1px solid rgba(255,255,255,0.05)",
@@ -502,7 +502,7 @@ export default function OnboardingPage() {
               ))}
             </div>
 
-            <p className="mt-6 font-light italic text-white/30 text-sm leading-relaxed">
+            <p className="mt-6 font-light italic text-white/50 text-sm leading-relaxed">
               However long it&apos;s been, you&apos;re taking the right step.
             </p>
           </div>
@@ -528,7 +528,7 @@ export default function OnboardingPage() {
               />
             </div>
 
-            <p className="mt-6 font-light italic text-white/30 text-sm leading-relaxed">
+            <p className="mt-6 font-light italic text-white/50 text-sm leading-relaxed">
               Be honest — this helps us set the right starting point.
             </p>
           </div>
@@ -606,7 +606,7 @@ export default function OnboardingPage() {
               ))}
             </div>
 
-            <p className="mt-6 font-light italic text-white/30 text-sm leading-relaxed">
+            <p className="mt-6 font-light italic text-white/50 text-sm leading-relaxed">
               Performance anxiety is incredibly common — you&apos;re not alone.
             </p>
           </div>
@@ -640,7 +640,7 @@ export default function OnboardingPage() {
               ))}
             </div>
 
-            <p className="mt-6 font-light italic text-white/30 text-sm leading-relaxed">
+            <p className="mt-6 font-light italic text-white/50 text-sm leading-relaxed">
               Whatever you&apos;ve tried before, a structured approach can make all the
               difference.
             </p>
@@ -832,7 +832,7 @@ export default function OnboardingPage() {
               />
             </div>
 
-            <p className="mt-6 font-light italic text-white/30 text-sm leading-relaxed">
+            <p className="mt-6 font-light italic text-white/50 text-sm leading-relaxed">
               The more you put in, the more you&apos;ll get out.
             </p>
           </div>
@@ -855,7 +855,7 @@ export default function OnboardingPage() {
                   y: 0,
                 }}
                 className={`text-lg transition-colors duration-500 ${
-                  processingPhase === 0 ? "font-light text-white/70" : "font-light text-white/30"
+                  processingPhase === 0 ? "font-light text-white/70" : "font-light text-white/50"
                 }`}
               >
                 Analyzing your responses
@@ -876,7 +876,7 @@ export default function OnboardingPage() {
                 }}
                 transition={{ duration: 0.4 }}
                 className={`text-lg ${
-                  processingPhase === 1 ? "font-light text-white/70" : "font-light text-white/30"
+                  processingPhase === 1 ? "font-light text-white/70" : "font-light text-white/50"
                 }`}
               >
                 Creating your personalized program
@@ -897,7 +897,7 @@ export default function OnboardingPage() {
                 }}
                 transition={{ duration: 0.4 }}
                 className={`text-lg ${
-                  processingPhase === 2 ? "font-light text-white/70" : "font-light text-white/30"
+                  processingPhase === 2 ? "font-light text-white/70" : "font-light text-white/50"
                 }`}
               >
                 Matching you with Dr.&nbsp;Maya
@@ -1036,7 +1036,7 @@ export default function OnboardingPage() {
             </button>
 
             <div className="mt-6 flex flex-col items-center gap-2">
-              <div className="flex items-center gap-2 text-sm font-light text-white/30">
+              <div className="flex items-center gap-2 text-sm font-light text-white/50">
                 <Shield className="h-4 w-4 text-amber-300/25" />
                 <span>Your data is encrypted and 100% private.</span>
               </div>
@@ -1098,7 +1098,7 @@ export default function OnboardingPage() {
           <div className="mt-10 flex w-full max-w-md items-center justify-between gap-4">
             <button
               onClick={goBack}
-              className="flex items-center gap-1 rounded-full px-5 py-3 text-sm font-light text-white/30 transition-colors hover:bg-white/[0.03] hover:text-white/50"
+              className="flex items-center gap-1 rounded-full px-5 py-3 text-sm font-light text-white/50 transition-colors hover:bg-white/[0.03] hover:text-white/60"
             >
               <ArrowLeft className="h-4 w-4" />
               Back

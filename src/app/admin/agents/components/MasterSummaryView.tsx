@@ -31,7 +31,7 @@ export function MasterSummaryView({
         }}
       >
         <h3 className="text-sm font-medium text-white/60">Master Summary</h3>
-        <p className="mt-2 text-xs text-white/25">
+        <p className="mt-2 text-xs text-white/50">
           No summary yet. Run the master coordinator to generate one.
         </p>
       </div>
@@ -70,7 +70,7 @@ export function MasterSummaryView({
         <button
           type="button"
           onClick={toggleExpanded}
-          className="rounded-lg px-3 py-1 text-[11px] text-white/30 hover:text-white/60 hover:bg-white/[0.05] transition-all"
+          className="rounded-lg px-3 py-1 text-[11px] text-white/50 hover:text-white/60 hover:bg-white/[0.05] transition-all"
         >
           {expanded ? "Collapse" : "Expand All"}
         </button>
@@ -118,22 +118,22 @@ export function MasterSummaryView({
                       </span>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium text-white/55">{p.title}</p>
-                        <p className="mt-1 text-[11px] text-white/30 leading-relaxed">
+                        <p className="mt-1 text-[11px] text-white/50 leading-relaxed">
                           {p.description}
                         </p>
                         <div className="mt-2 flex flex-wrap gap-2">
                           {p.effort && (
-                            <span className="rounded px-2 py-0.5 text-[10px] text-white/25" style={{ background: "rgba(255,255,255,0.03)" }}>
+                            <span className="rounded px-2 py-0.5 text-[10px] text-white/50" style={{ background: "rgba(255,255,255,0.03)" }}>
                               Effort: {p.effort}
                             </span>
                           )}
                           {p.impact && (
-                            <span className="rounded px-2 py-0.5 text-[10px] text-white/25" style={{ background: "rgba(255,255,255,0.03)" }}>
+                            <span className="rounded px-2 py-0.5 text-[10px] text-white/50" style={{ background: "rgba(255,255,255,0.03)" }}>
                               Impact: {p.impact}
                             </span>
                           )}
                           {p.category && (
-                            <span className="rounded px-2 py-0.5 text-[10px] text-white/25" style={{ background: "rgba(255,255,255,0.03)" }}>
+                            <span className="rounded px-2 py-0.5 text-[10px] text-white/50" style={{ background: "rgba(255,255,255,0.03)" }}>
                               {p.category}
                             </span>
                           )}
@@ -168,12 +168,12 @@ export function MasterSummaryView({
                       <>
                         <p className="text-xs font-medium text-white/50">{p.pattern}</p>
                         {p.implication && (
-                          <p className="mt-1 text-[11px] text-white/25">{p.implication}</p>
+                          <p className="mt-1 text-[11px] text-white/50">{p.implication}</p>
                         )}
                         {p.agents?.length > 0 && (
                           <div className="mt-1.5 flex gap-1.5">
                             {p.agents.map((a, j) => (
-                              <span key={j} className="rounded px-1.5 py-0.5 text-[9px] text-white/20" style={{ background: "rgba(255,255,255,0.03)" }}>
+                              <span key={j} className="rounded px-1.5 py-0.5 text-[9px] text-white/50" style={{ background: "rgba(255,255,255,0.03)" }}>
                                 {a}
                               </span>
                             ))}
@@ -231,7 +231,7 @@ export function MasterSummaryView({
                             </span>
                           )}
                         </div>
-                        <p className="mt-1 text-[11px] text-white/30 leading-relaxed">
+                        <p className="mt-1 text-[11px] text-white/50 leading-relaxed">
                           {r.description}
                         </p>
                         {r.expectedImpact && (
@@ -268,7 +268,7 @@ export function MasterSummaryView({
                     ) : (
                       <>
                         <p className="text-xs text-red-300/50">{c.issue}</p>
-                        <p className="mt-1 text-[11px] text-white/25">
+                        <p className="mt-1 text-[11px] text-white/50">
                           Resolution: {c.resolution}
                         </p>
                         {c.agents?.length > 0 && (
@@ -305,8 +305,8 @@ export function MasterSummaryView({
                     ) : (
                       <>
                         <p className="text-xs font-medium text-yellow-300/50">{g.area}</p>
-                        <p className="mt-1 text-[11px] text-white/30">{g.description}</p>
-                        <p className="mt-1 text-[11px] text-white/20">
+                        <p className="mt-1 text-[11px] text-white/50">{g.description}</p>
+                        <p className="mt-1 text-[11px] text-white/50">
                           Rec: {g.recommendation}
                         </p>
                       </>

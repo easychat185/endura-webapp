@@ -9,7 +9,7 @@ export default function Loading() {
             borderRightColor: "rgba(196,149,106,0.1)",
           }}
         />
-        <p className="mt-4 text-sm font-light text-white/25">Loading...</p>
+        <p className="mt-4 text-sm font-light text-white/50">Loading...</p>
       </div>
     </div>
   );

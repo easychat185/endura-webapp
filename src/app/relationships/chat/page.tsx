@@ -276,7 +276,7 @@ export default function RelationshipChatPage() {
               <p className="text-sm font-light text-white/50">
                 Relationship Coaching
               </p>
-              <p className="mt-2 text-sm font-light text-white/30 max-w-xs">
+              <p className="mt-2 text-sm font-light text-white/50 max-w-xs">
                 Talk to Dr. Maya about communication, intimacy, partner dynamics, and building confidence in your relationship.
               </p>
 
@@ -365,11 +365,11 @@ export default function RelationshipChatPage() {
 
                     {isLastInGroup && (
                       <span
-                        className={`mt-1.5 font-light text-[11px] text-white/20 ${
+                        className={`mt-1.5 font-light text-[11px] text-white/50 ${
                           isMaya ? "ml-[42px]" : "mr-1"
                         }`}
                       >
-                        {isMaya && <span className="text-white/25">Dr. Maya · </span>}
+                        {isMaya && <span className="text-white/50">Dr. Maya · </span>}
                         {msg.timestamp}
                       </span>
                     )}
@@ -393,7 +393,7 @@ export default function RelationshipChatPage() {
         style={{ background: "rgba(8,8,8,0.4)" }}
       >
         <div className="mx-auto max-w-2xl px-4 pt-2 sm:px-6">
-          <p className="text-center text-xs font-light text-white/20">
+          <p className="text-center text-xs font-light text-white/50">
             Messages remaining:{" "}
             <span
               className={
@@ -429,7 +429,7 @@ export default function RelationshipChatPage() {
               }}
               onKeyDown={handleKeyDown}
               placeholder="Ask about relationships..."
-              className="w-full resize-none bg-transparent text-sm font-light leading-relaxed text-white/70 outline-none placeholder:text-white/20"
+              className="w-full resize-none bg-transparent text-sm font-light leading-relaxed text-white/70 outline-none placeholder:text-white/40"
               style={{ maxHeight: "6lh" }}
               disabled={remaining <= 0}
             />

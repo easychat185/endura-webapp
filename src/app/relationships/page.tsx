@@ -67,7 +67,7 @@ export default function RelationshipsPage() {
               <h1 className="text-xl font-light tracking-wide text-white/80">
                 Relationships
               </h1>
-              <p className="text-xs font-light text-white/30">
+              <p className="text-xs font-light text-white/50">
                 Guides &amp; coaching
               </p>
             </div>
@@ -115,7 +115,7 @@ export default function RelationshipsPage() {
 
         {/* Section title */}
         <motion.div custom={1} variants={fadeUpIndexed} className="mt-8 mb-4">
-          <h3 className="font-normal uppercase tracking-[0.2em] text-[11px] text-white/30">
+          <h3 className="font-normal uppercase tracking-[0.2em] text-[11px] text-white/50">
             Guides &amp; Articles
           </h3>
         </motion.div>
@@ -174,7 +174,7 @@ export default function RelationshipsPage() {
                         {guide.subtitle}
                       </p>
                       <div className="mt-3 flex items-center gap-3">
-                        <span className="flex items-center gap-1.5 text-xs font-light text-white/25">
+                        <span className="flex items-center gap-1.5 text-xs font-light text-white/50">
                           <Clock className="h-3.5 w-3.5" />
                           {guide.readTime}
                         </span>

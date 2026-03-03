@@ -19,6 +19,24 @@ export const SPECIALIZED_AGENT_TYPES: AgentType[] = ALL_AGENT_TYPES.filter(
   (t) => t !== "master-coordinator"
 );
 
+export const AGENT_LABELS: Record<AgentType, string> = {
+  "market-research": "Market Research",
+  "marketing-content": "Marketing Content",
+  "code-quality": "Code Quality",
+  "ui-ux": "UI/UX Analysis",
+  "dr-maya-knowledge": "Dr. Maya Knowledge",
+  "master-coordinator": "Master Coordinator",
+};
+
+export const AGENT_SHORT_LABELS: Record<AgentType, string> = {
+  "market-research": "Market",
+  "marketing-content": "Marketing",
+  "code-quality": "Code",
+  "ui-ux": "UI/UX",
+  "dr-maya-knowledge": "Dr. Maya",
+  "master-coordinator": "Coord.",
+};
+
 export interface AgentConfig {
   type: AgentType;
   model: string;

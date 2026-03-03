@@ -209,7 +209,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <span className="text-sm font-light text-white/30">
+            <span className="text-sm font-light text-white/50">
               {loading ? "Welcome back" : `Welcome back${profile?.display_name ? `, ${profile.display_name.split(" ")[0]}` : ""}`}
             </span>
             <Link
@@ -217,7 +217,7 @@ export default function DashboardPage() {
               className="flex h-11 w-11 items-center justify-center rounded-full bg-white/[0.03] transition-all duration-500 hover:bg-white/[0.06]"
               aria-label="Settings"
             >
-              <Settings className="h-4 w-4 text-white/30" />
+              <Settings className="h-4 w-4 text-white/50" />
             </Link>
           </div>
         </div>
@@ -251,8 +251,8 @@ export default function DashboardPage() {
           <>
             {/* CACHED DATA INDICATOR */}
             {cachedAt && (
-              <p className="text-center text-xs font-light text-white/25 mb-4">
-                Last updated {new Date(cachedAt).toLocaleTimeString()} ago
+              <p className="text-center text-xs font-light text-white/50 mb-4">
+                Showing data from {new Date(cachedAt).toLocaleTimeString()}
               </p>
             )}
 
@@ -279,7 +279,7 @@ export default function DashboardPage() {
                     </div>
                     <button
                       onClick={dismissRecap}
-                      className="text-xs font-light text-white/25 hover:text-white/40"
+                      className="text-xs font-light text-white/50 hover:text-white/60"
                     >
                       Dismiss
                     </button>
@@ -361,6 +361,46 @@ export default function DashboardPage() {
                 />
               </div>
             </motion.section>
+
+            {/* WELCOME CARD FOR NEW USERS */}
+            {data?.sessionCount === 0 && (
+              <motion.section
+                custom={sectionIdx++}
+                variants={fadeUpIndexed}
+                className="mt-5 rounded-3xl p-7 sm:p-8 text-center"
+                style={{
+                  background: "rgba(196,149,106,0.06)",
+                  border: "1px solid rgba(196,149,106,0.12)",
+                }}
+              >
+                <div
+                  className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full"
+                  style={{
+                    background: "rgba(196,149,106,0.08)",
+                    border: "1px solid rgba(196,149,106,0.1)",
+                  }}
+                >
+                  <span className="text-xl font-light text-amber-200/60">DM</span>
+                </div>
+                <h2 className="text-lg font-light tracking-wide text-white/80">
+                  Welcome to Endura
+                </h2>
+                <p className="mt-2 text-sm font-light leading-relaxed text-white/50">
+                  Your journey starts here. Meet Dr.&nbsp;Maya, your personal coach, and begin building confidence and control.
+                </p>
+                <Link
+                  href="/chat"
+                  className="mt-5 inline-flex items-center gap-2.5 rounded-full px-6 py-3.5 text-base font-normal tracking-wide text-amber-200/80 backdrop-blur-sm transition-all duration-500 hover:shadow-[0_0_40px_rgba(196,149,106,0.12)] active:scale-[0.98]"
+                  style={{
+                    background: "rgba(196,149,106,0.12)",
+                    border: "1px solid rgba(196,149,106,0.18)",
+                  }}
+                >
+                  Start First Session
+                  <ArrowRight className="h-4 w-4 text-amber-200/60" />
+                </Link>
+              </motion.section>
+            )}
 
             {/* TALK TO DR. MAYA CARD */}
             <motion.section
@@ -512,7 +552,7 @@ export default function DashboardPage() {
                     </>
                   ) : (
                     <div className="mt-3">
-                      <p className="text-xs font-light text-white/25 leading-relaxed">
+                      <p className="text-xs font-light text-white/50 leading-relaxed">
                         Start a session to unlock your score
                       </p>
                       <Link
@@ -544,7 +584,7 @@ export default function DashboardPage() {
                     </>
                   ) : (
                     <div className="mt-3">
-                      <p className="text-xs font-light text-white/25 leading-relaxed">
+                      <p className="text-xs font-light text-white/50 leading-relaxed">
                         Log your progress to track confidence
                       </p>
                       <Link
@@ -568,7 +608,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-normal text-white/50">Daily Reminder</p>
-                    <p className="text-xs font-light text-white/25">
+                    <p className="text-xs font-light text-white/50">
                       Practice daily for best results. Try to check in at the same time each day.
                     </p>
                   </div>

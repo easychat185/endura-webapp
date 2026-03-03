@@ -135,7 +135,7 @@ export default function LoginPage() {
           className="my-8 flex items-center gap-4"
         >
           <div className="h-px flex-1 bg-white/[0.04]" />
-          <span className="text-xs font-light text-white/20">or</span>
+          <span className="text-xs font-light text-white/50">or</span>
           <div className="h-px flex-1 bg-white/[0.04]" />
         </motion.div>
 
@@ -160,13 +160,13 @@ export default function LoginPage() {
             <p className="mt-1 text-sm font-normal text-white/80">
               {emailSent}
             </p>
-            <p className="mt-3 text-xs font-light text-white/30">
+            <p className="mt-3 text-xs font-light text-white/50">
               Check your inbox and spam folder
             </p>
             <button
               onClick={handleResend}
               disabled={resendCooldown > 0 || loading}
-              className="mt-4 text-sm font-light text-amber-200/50 transition-all duration-500 hover:text-amber-200/70 disabled:text-white/20 disabled:cursor-not-allowed"
+              className="mt-4 text-sm font-light text-amber-200/50 transition-all duration-500 hover:text-amber-200/70 disabled:text-white/40 disabled:cursor-not-allowed"
             >
               {resendCooldown > 0
                 ? `Resend in ${resendCooldown}s`
@@ -174,7 +174,7 @@ export default function LoginPage() {
             </button>
             <button
               onClick={() => { setEmailSent(""); setError(""); }}
-              className="mt-2 text-xs font-light text-white/25 transition-all hover:text-white/40"
+              className="mt-2 text-xs font-light text-white/50 transition-all hover:text-white/60"
             >
               Use a different email
             </button>
@@ -188,13 +188,13 @@ export default function LoginPage() {
                 border: "1px solid rgba(255,255,255,0.04)",
               }}
             >
-              <Mail className="h-5 w-5 text-white/20" />
+              <Mail className="h-5 w-5 text-white/50" />
               <input
                 type="email"
                 name="email"
                 placeholder="Enter your email"
                 required
-                className="w-full bg-transparent text-sm font-light text-white/70 outline-none placeholder:text-white/20"
+                className="w-full bg-transparent text-sm font-light text-white/70 outline-none placeholder:text-white/40"
               />
             </div>
 
@@ -223,11 +223,11 @@ export default function LoginPage() {
           variants={fadeUp}
           className="mt-10 flex flex-col items-center gap-3"
         >
-          <div className="flex items-center gap-2 text-xs font-light text-white/20">
+          <div className="flex items-center gap-2 text-xs font-light text-white/50">
             <Shield className="h-3.5 w-3.5 text-amber-300/25" />
             <span>100% Private</span>
           </div>
-          <div className="flex items-center gap-2 text-xs font-light text-white/20">
+          <div className="flex items-center gap-2 text-xs font-light text-white/50">
             <Lock className="h-3.5 w-3.5 text-amber-300/25" />
             <span>256-bit Encrypted</span>
           </div>
@@ -237,7 +237,7 @@ export default function LoginPage() {
         <motion.div variants={fadeUp} className="mt-8 text-center">
           <Link
             href="/"
-            className="text-sm font-light text-white/25 transition-all duration-500 hover:text-white/40"
+            className="text-sm font-light text-white/50 transition-all duration-500 hover:text-white/60"
           >
             Back to home
           </Link>

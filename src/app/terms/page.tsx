@@ -21,7 +21,7 @@ export default function TermsPage() {
           </Link>
           <Link
             href="/"
-            className="text-sm font-light text-white/30 transition-all duration-500 hover:text-white/50"
+            className="text-sm font-light text-white/50 transition-all duration-500 hover:text-white/60"
           >
             Back to Home
           </Link>
@@ -42,7 +42,7 @@ export default function TermsPage() {
         </motion.h1>
         <motion.p
           variants={fadeUp}
-          className="mt-3 text-sm font-light text-white/30"
+          className="mt-3 text-sm font-light text-white/50"
         >
           Last updated: February 2026
         </motion.p>

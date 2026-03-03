@@ -510,9 +510,22 @@ export default function ChatPage() {
             </div>
           </div>
 
-          <span className="rounded-full bg-white/[0.03] px-3 py-1 text-xs font-light text-white/30">
-            Session {sessionNumber}
-          </span>
+          <div className="flex items-center gap-2">
+            <span
+              className={`rounded-full bg-white/[0.03] px-3 py-1 text-xs font-light ${
+                remaining < 2
+                  ? "text-red-400/70"
+                  : remaining < 5
+                    ? "text-amber-300/60"
+                    : "text-white/50"
+              }`}
+            >
+              {remaining}/{maxMessages}
+            </span>
+            <span className="rounded-full bg-white/[0.03] px-3 py-1 text-xs font-light text-white/50">
+              Session {sessionNumber}
+            </span>
+          </div>
         </div>
       </header>
 
@@ -751,7 +764,7 @@ export default function ChatPage() {
               onKeyDown={handleKeyDown}
               placeholder={online ? "Type your message..." : "You're offline..."}
               inputMode="text"
-              className="w-full resize-none bg-transparent text-sm font-light leading-relaxed text-white/70 outline-none placeholder:text-white/20"
+              className="w-full resize-none bg-transparent text-sm font-light leading-relaxed text-white/70 outline-none placeholder:text-white/40"
               style={{ maxHeight: "6lh" }}
               disabled={remaining <= 0 || !conversationId || !online}
             />

@@ -168,7 +168,7 @@ export default function PricingPage() {
                 <span className="text-4xl font-extralight tracking-tight text-white/80 sm:text-5xl">
                   {plan.price}
                 </span>
-                <span className="text-base font-light text-white/30">
+                <span className="text-base font-light text-white/50">
                   {plan.period}
                 </span>
               </div>
@@ -260,7 +260,7 @@ export default function PricingPage() {
               ))}
             </div>
             <span className="text-sm font-light text-white/60">4.9/5</span>
-            <span className="text-sm font-light text-white/25">rating</span>
+            <span className="text-sm font-light text-white/50">rating</span>
           </div>
         </motion.div>
       </section>

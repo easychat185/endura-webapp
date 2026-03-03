@@ -4,22 +4,22 @@ export function AgentStatusBadge({ status }: { status: string | null }) {
   const config: Record<string, { bg: string; text: string; label: string }> = {
     completed: {
       bg: "rgba(74,222,128,0.1)",
-      text: "text-emerald-400/70",
+      text: "text-emerald-400",
       label: "Completed",
     },
     running: {
       bg: "rgba(250,204,21,0.1)",
-      text: "text-yellow-400/70",
+      text: "text-yellow-400",
       label: "Running",
     },
     failed: {
       bg: "rgba(248,113,113,0.1)",
-      text: "text-red-400/70",
+      text: "text-red-400",
       label: "Failed",
     },
     pending: {
       bg: "rgba(148,163,184,0.1)",
-      text: "text-slate-400/70",
+      text: "text-slate-400",
       label: "Pending",
     },
   };

@@ -1,26 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/agents/supabase-admin";
-import { timingSafeEqual } from "crypto";
+import { requireAdminAuth } from "@/lib/agents/admin-auth";
 import { isValidUUID } from "@/lib/validation";
-
-function checkAuth(request: NextRequest): boolean {
-  const secret =
-    request.headers.get("x-admin-secret") ||
-    request.cookies.get("admin_token")?.value;
-  const expected = process.env.AGENT_ADMIN_SECRET;
-  if (!secret || !expected) return false;
-  const a = Buffer.from(secret);
-  const b = Buffer.from(expected);
-  return a.length === b.length && timingSafeEqual(a, b);
-}
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!checkAuth(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authErr = requireAdminAuth(request);
+  if (authErr) return authErr;
 
   try {
     const { id } = await params;

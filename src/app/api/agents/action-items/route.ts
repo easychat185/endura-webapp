@@ -1,30 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/agents/supabase-admin";
-import { timingSafeEqual } from "crypto";
-
-function checkAuth(request: NextRequest): boolean {
-  const secret =
-    request.headers.get("x-admin-secret") ||
-    request.cookies.get("admin_token")?.value;
-  const expected = process.env.AGENT_ADMIN_SECRET;
-  if (!secret || !expected) return false;
-  const a = Buffer.from(secret);
-  const b = Buffer.from(expected);
-  return a.length === b.length && timingSafeEqual(a, b);
-}
+import { requireAdminAuth } from "@/lib/agents/admin-auth";
+import { isValidUUID, parsePositiveInt } from "@/lib/validation";
 
 export async function GET(request: NextRequest) {
-  if (!checkAuth(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authErr = requireAdminAuth(request);
+  if (authErr) return authErr;
 
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
     const agentType = searchParams.get("agentType");
     const minPriority = searchParams.get("minPriority");
-    const limit = Number(searchParams.get("limit") ?? 50);
-    const offset = Number(searchParams.get("offset") ?? 0);
+    const limit = parsePositiveInt(searchParams.get("limit"), 50, 100);
+    const offset = parsePositiveInt(searchParams.get("offset"), 0, 10000);
 
     const supabase = getAdminClient();
 
@@ -56,9 +45,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  if (!checkAuth(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authErr = requireAdminAuth(request);
+  if (authErr) return authErr;
 
   try {
     const { id, status } = await request.json();
@@ -66,6 +54,13 @@ export async function PATCH(request: NextRequest) {
     if (!id || !status) {
       return NextResponse.json(
         { error: "Missing id or status" },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidUUID(id)) {
+      return NextResponse.json(
+        { error: "Invalid action item ID" },
         { status: 400 }
       );
     }

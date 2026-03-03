@@ -25,8 +25,8 @@ interface DashboardData {
 
 export default function AgentDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
-  const [reports, setReports] = useState<unknown[]>([]);
-  const [actionItems, setActionItems] = useState<unknown[]>([]);
+  const [reports, setReports] = useState<{ id: string; agent_type: string; summary: string; report: Record<string, unknown>; created_at: string }[]>([]);
+  const [actionItems, setActionItems] = useState<{ id: string; agent_type: string; title: string; description: string; priority: number; status: string; category: string; created_at: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [secretInput, setSecretInput] = useState("");
@@ -70,19 +70,44 @@ export default function AgentDashboard() {
     }
   }, [authenticated]);
 
-  // Check if cookie already exists by trying a fetch
+  // Check if cookie already exists; if so, skip the second fetch by loading data directly
+  const [probed, setProbed] = useState(false);
+
   useEffect(() => {
-    fetch("/api/agents/dashboard").then((res) => {
-      if (res.ok) setAuthenticated(true);
-      else setLoading(false);
-    }).catch(() => setLoading(false));
+    fetch("/api/agents/dashboard")
+      .then(async (res) => {
+        if (res.ok) {
+          // Cookie is valid — use the response data directly
+          const dashData = await res.json();
+          setAuthenticated(true);
+          setData(dashData);
+
+          // Fetch reports and action items in parallel
+          const [reportsRes, itemsRes] = await Promise.all([
+            fetch("/api/agents/reports?limit=20"),
+            fetch("/api/agents/action-items?limit=100"),
+          ]);
+          const [reportsData, itemsData] = await Promise.all([
+            reportsRes.json(),
+            itemsRes.json(),
+          ]);
+          setReports(reportsData.reports ?? []);
+          setActionItems(itemsData.actionItems ?? []);
+          setLoading(false);
+        } else {
+          setLoading(false);
+        }
+      })
+      .catch(() => setLoading(false))
+      .finally(() => setProbed(true));
   }, []);
 
   useEffect(() => {
-    if (authenticated) {
+    // Only auto-fetch after login, not on initial probe
+    if (authenticated && probed) {
       fetchData();
     }
-  }, [authenticated, fetchData]);
+  }, [authenticated, fetchData, probed]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,20 +131,22 @@ export default function AgentDashboard() {
   const runAgent = async (agentType: string) => {
     setRunningAgents((prev) => new Set(prev).add(agentType));
     try {
-      const endpoint =
-        agentType === "master-coordinator"
-          ? "/api/agents/coordinate"
-          : "/api/agents/run";
-      const body =
-        agentType === "master-coordinator"
-          ? undefined
-          : JSON.stringify({ agentType });
+      const isCoordinator = agentType === "master-coordinator";
+      const endpoint = isCoordinator
+        ? "/api/agents/coordinate"
+        : "/api/agents/run";
 
-      await fetch(endpoint, {
+      const res = await fetch(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body,
+        ...(isCoordinator
+          ? {}
+          : {
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ agentType }),
+            }),
       });
+
+      if (!res.ok) throw new Error("Agent run failed");
 
       await fetchData();
     } catch {
@@ -146,7 +173,7 @@ export default function AgentDashboard() {
             value={secretInput}
             onChange={(e) => setSecretInput(e.target.value)}
             placeholder="Admin secret"
-            className="w-full rounded-xl px-4 py-3 text-sm bg-white/[0.04] border border-white/[0.08] text-white/70 placeholder:text-white/20 focus:outline-none focus:border-amber-400/30"
+            className="w-full rounded-xl px-4 py-3 text-sm bg-white/[0.04] border border-white/[0.08] text-white/70 placeholder:text-white/40 focus:outline-none focus:border-amber-400/60 focus:ring-2 focus:ring-amber-400/30"
           />
           {error && (
             <p className="text-xs text-red-400/60 text-center">{error}</p>
@@ -166,7 +193,39 @@ export default function AgentDashboard() {
     );
   }
 
-  let sectionIdx = 0;
+  const sections = [
+    <TokenUsageChart
+      key="token-usage"
+      costPerAgent={data?.costs.perAgent ?? {}}
+      cost7d={data?.costs.sevenDay ?? 0}
+      cost30d={data?.costs.thirtyDay ?? 0}
+    />,
+    <div key="agent-grid">
+      <h2 className="mb-3 text-[11px] font-medium text-white/50 uppercase tracking-[0.2em]">
+        Agents
+      </h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {ALL_AGENT_TYPES.map((agentType) => (
+          <AgentRunCard
+            key={agentType}
+            agentType={agentType}
+            run={
+              (data?.latestRuns[agentType] as Record<
+                string,
+                unknown
+              >) as never
+            }
+            onRunNow={() => runAgent(agentType)}
+            isRunning={runningAgents.has(agentType)}
+          />
+        ))}
+      </div>
+    </div>,
+    <AgentTriggerPanel key="trigger-panel" onComplete={fetchData} />,
+    <MasterSummaryView key="summary" summary={data?.latestSummary as never} />,
+    <ActionItemList key="action-items" items={actionItems} onUpdate={fetchData} />,
+    <ReportViewer key="reports" reports={reports} />,
+  ];
 
   return (
     <div className="min-h-screen bg-[#080808] text-white">
@@ -180,7 +239,7 @@ export default function AgentDashboard() {
             Agent Dashboard
           </h1>
           <div className="flex items-center gap-4">
-            <span className="text-xs text-white/20">
+            <span className="text-xs text-white/50">
               {data ? `${data.totalRuns} total runs` : ""}
             </span>
             <button
@@ -227,66 +286,11 @@ export default function AgentDashboard() {
           </div>
         ) : (
           <div className="space-y-6">
-            {/* Token Usage */}
-            <motion.section custom={sectionIdx++} variants={fadeUpIndexed}>
-              <TokenUsageChart
-                costPerAgent={data?.costs.perAgent ?? {}}
-                cost7d={data?.costs.sevenDay ?? 0}
-                cost30d={data?.costs.thirtyDay ?? 0}
-              />
-            </motion.section>
-
-            {/* Agent Grid */}
-            <motion.section custom={sectionIdx++} variants={fadeUpIndexed}>
-              <h2 className="mb-3 text-[11px] font-medium text-white/30 uppercase tracking-[0.2em]">
-                Agents
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {ALL_AGENT_TYPES.map((agentType) => (
-                  <AgentRunCard
-                    key={agentType}
-                    agentType={agentType}
-                    run={
-                      (data?.latestRuns[agentType] as Record<
-                        string,
-                        unknown
-                      >) as never
-                    }
-                    onRunNow={() => runAgent(agentType)}
-                    isRunning={runningAgents.has(agentType)}
-                  />
-                ))}
-              </div>
-            </motion.section>
-
-            {/* Run All Panel */}
-            <motion.section custom={sectionIdx++} variants={fadeUpIndexed}>
-              <AgentTriggerPanel
-                onComplete={fetchData}
-              />
-            </motion.section>
-
-            {/* Master Summary */}
-            <motion.section custom={sectionIdx++} variants={fadeUpIndexed}>
-              <MasterSummaryView
-                summary={data?.latestSummary as never}
-              />
-            </motion.section>
-
-            {/* Action Items */}
-            <motion.section custom={sectionIdx++} variants={fadeUpIndexed}>
-              <ActionItemList
-                items={actionItems as never[]}
-                onUpdate={fetchData}
-              />
-            </motion.section>
-
-            {/* Reports */}
-            <motion.section custom={sectionIdx++} variants={fadeUpIndexed}>
-              <ReportViewer
-                reports={reports as never[]}
-              />
-            </motion.section>
+            {sections.map((section, idx) => (
+              <motion.section key={idx} custom={idx} variants={fadeUpIndexed}>
+                {section}
+              </motion.section>
+            ))}
           </div>
         )}
       </motion.main>

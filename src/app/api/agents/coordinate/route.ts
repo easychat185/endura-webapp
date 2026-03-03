@@ -1,22 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MasterCoordinatorAgent } from "@/lib/agents/runners/master-coordinator";
-import { timingSafeEqual } from "crypto";
-
-function checkAuth(request: NextRequest): boolean {
-  const secret =
-    request.headers.get("x-admin-secret") ||
-    request.cookies.get("admin_token")?.value;
-  const expected = process.env.AGENT_ADMIN_SECRET;
-  if (!secret || !expected) return false;
-  const a = Buffer.from(secret);
-  const b = Buffer.from(expected);
-  return a.length === b.length && timingSafeEqual(a, b);
-}
+import { requireAdminAuth } from "@/lib/agents/admin-auth";
 
 export async function POST(request: NextRequest) {
-  if (!checkAuth(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authErr = requireAdminAuth(request);
+  if (authErr) return authErr;
 
   try {
     const coordinator = new MasterCoordinatorAgent();

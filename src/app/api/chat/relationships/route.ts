@@ -54,12 +54,30 @@ export async function POST(request: NextRequest) {
 
     message = sanitizeMessage(message);
 
+    // Validate and sanitize history
+    const validSenders = ["user", "maya", "assistant"];
+    const safeHistory: { sender: string; text: string }[] = [];
+    if (Array.isArray(history)) {
+      for (const m of history.slice(-20)) {
+        if (
+          m &&
+          typeof m === "object" &&
+          typeof m.sender === "string" &&
+          validSenders.includes(m.sender) &&
+          typeof m.text === "string" &&
+          m.text.length <= 5000
+        ) {
+          safeHistory.push({ sender: m.sender, text: sanitizeMessage(m.text) });
+        }
+      }
+    }
+
     // Build system prompt
     const systemPrompt = buildRelationshipPrompt();
 
     // Build message history for Claude
     const claudeMessages: Anthropic.MessageParam[] = [
-      ...(history ?? []).map((m: { sender: string; text: string }) => ({
+      ...safeHistory.map((m) => ({
         role: m.sender === "user" ? ("user" as const) : ("assistant" as const),
         content: m.text,
       })),

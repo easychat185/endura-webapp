@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { timingSafeEqual } from "crypto";
+import { signAdminToken } from "@/lib/agents/admin-token";
 
 export async function POST(request: NextRequest) {
   const expected = process.env.AGENT_ADMIN_SECRET;
@@ -31,12 +32,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const isProduction = process.env.NODE_ENV === "production";
+    const token = signAdminToken(expected);
     const res = NextResponse.json({ success: true });
-    res.cookies.set("admin_token", secret, {
+    res.cookies.set("admin_token", token, {
       httpOnly: true,
-      secure: true,
+      secure: isProduction,
       sameSite: "lax",
-      path: "/api/agents",
+      path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 days
     });
 
@@ -50,12 +53,13 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE() {
+  const isProduction = process.env.NODE_ENV === "production";
   const res = NextResponse.json({ success: true });
   res.cookies.set("admin_token", "", {
     httpOnly: true,
-    secure: true,
+    secure: isProduction,
     sameSite: "lax",
-    path: "/api/agents",
+    path: "/",
     maxAge: 0,
   });
   return res;

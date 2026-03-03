@@ -1,16 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { ALL_AGENT_TYPES, SPECIALIZED_AGENT_TYPES } from "@/lib/agents/types";
+import { SPECIALIZED_AGENT_TYPES, AGENT_LABELS } from "@/lib/agents/types";
+import type { AgentType } from "@/lib/agents/types";
 
-const AGENT_LABELS: Record<string, string> = {
-  "market-research": "Market Research",
-  "marketing-content": "Marketing Content",
-  "code-quality": "Code Quality",
-  "ui-ux": "UI/UX Analysis",
-  "dr-maya-knowledge": "Dr. Maya Knowledge",
-  "master-coordinator": "Master Coordinator",
-};
+interface ProgressEntry {
+  agent: string;
+  status: "running" | "done" | "failed";
+}
+
+const totalAgents = SPECIALIZED_AGENT_TYPES.length + 1; // +1 for coordinator
 
 export function AgentTriggerPanel({
   onComplete,
@@ -18,44 +17,56 @@ export function AgentTriggerPanel({
   onComplete: () => void;
 }) {
   const [runningAll, setRunningAll] = useState(false);
-  const [progress, setProgress] = useState<string[]>([]);
+  const [progress, setProgress] = useState<ProgressEntry[]>([]);
+  const [currentStep, setCurrentStep] = useState(0);
 
   const runAll = async () => {
     setRunningAll(true);
     setProgress([]);
+    setCurrentStep(0);
 
+    let step = 0;
     for (const agentType of SPECIALIZED_AGENT_TYPES) {
-      setProgress((p) => [...p, `Running ${AGENT_LABELS[agentType]}...`]);
+      step++;
+      setCurrentStep(step);
+      const label = AGENT_LABELS[agentType as AgentType];
+      setProgress((p) => [...p, { agent: label, status: "running" }]);
       try {
-        await fetch("/api/agents/run", {
+        const res = await fetch("/api/agents/run", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ agentType }),
         });
-        setProgress((p) => [
-          ...p,
-          `${AGENT_LABELS[agentType]}: done`,
-        ]);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        setProgress((p) =>
+          p.map((e) => (e.agent === label && e.status === "running" ? { ...e, status: "done" } : e))
+        );
       } catch {
-        setProgress((p) => [
-          ...p,
-          `${AGENT_LABELS[agentType]}: failed`,
-        ]);
+        setProgress((p) =>
+          p.map((e) => (e.agent === label && e.status === "running" ? { ...e, status: "failed" } : e))
+        );
       }
     }
 
     // Run coordinator
-    setProgress((p) => [...p, "Running Master Coordinator..."]);
+    step++;
+    setCurrentStep(step);
+    const coordLabel = AGENT_LABELS["master-coordinator"];
+    setProgress((p) => [...p, { agent: coordLabel, status: "running" }]);
     try {
-      await fetch("/api/agents/coordinate", {
-        method: "POST",
-      });
-      setProgress((p) => [...p, "Master Coordinator: done"]);
+      const res = await fetch("/api/agents/coordinate", { method: "POST" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setProgress((p) =>
+        p.map((e) => (e.agent === coordLabel && e.status === "running" ? { ...e, status: "done" } : e))
+      );
     } catch {
-      setProgress((p) => [...p, "Master Coordinator: failed"]);
+      setProgress((p) =>
+        p.map((e) => (e.agent === coordLabel && e.status === "running" ? { ...e, status: "failed" } : e))
+      );
     }
 
     setRunningAll(false);
+    setCurrentStep(0);
     onComplete();
   };
 
@@ -68,36 +79,38 @@ export function AgentTriggerPanel({
       }}
     >
       <h3 className="text-sm font-medium text-white/60">Run All Agents</h3>
-      <p className="mt-1 text-[11px] text-white/45">
+      <p className="mt-1 text-[11px] text-white/50">
         Runs all 5 specialized agents sequentially, then the master coordinator.
       </p>
 
       <button
         onClick={runAll}
         disabled={runningAll}
+        aria-busy={runningAll}
+        aria-label={runningAll ? `Running agent ${currentStep} of ${totalAgents}` : "Run all agents"}
         className="mt-4 w-full rounded-xl px-4 py-2.5 text-xs font-medium text-amber-200/70 transition-all duration-300 hover:text-amber-200/90 disabled:opacity-30 disabled:cursor-not-allowed"
         style={{
           background: "rgba(196,149,106,0.1)",
           border: "1px solid rgba(196,149,106,0.15)",
         }}
       >
-        {runningAll ? "Running..." : "Run Full Analysis"}
+        {runningAll ? `Running... (Agent ${currentStep} of ${totalAgents})` : "Run Full Analysis"}
       </button>
 
       {progress.length > 0 && (
-        <div className="mt-3 space-y-0.5 max-h-40 overflow-y-auto">
-          {progress.map((msg, i) => (
+        <div className="mt-3 space-y-0.5 max-h-40 overflow-y-auto" role="log" aria-live="polite">
+          {progress.map((entry, i) => (
             <p
               key={i}
               className={`text-[10px] ${
-                msg.includes("done")
+                entry.status === "done"
                   ? "text-emerald-400/50"
-                  : msg.includes("failed")
+                  : entry.status === "failed"
                     ? "text-red-400/50"
-                    : "text-white/45"
+                    : "text-white/50"
               }`}
             >
-              {msg}
+              {entry.agent}: {entry.status === "running" ? "running..." : entry.status}
             </p>
           ))}
         </div>

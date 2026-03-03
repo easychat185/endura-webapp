@@ -1,28 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/agents/supabase-admin";
 import { ALL_AGENT_TYPES } from "@/lib/agents/types";
-import { timingSafeEqual } from "crypto";
-
-function checkAuth(request: NextRequest): boolean {
-  const secret =
-    request.headers.get("x-admin-secret") ||
-    request.cookies.get("admin_token")?.value;
-  const expected = process.env.AGENT_ADMIN_SECRET;
-  if (!secret || !expected) return false;
-  const a = Buffer.from(secret);
-  const b = Buffer.from(expected);
-  return a.length === b.length && timingSafeEqual(a, b);
-}
+import { requireAdminAuth } from "@/lib/agents/admin-auth";
 
 export async function GET(request: NextRequest) {
-  if (!checkAuth(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authErr = requireAdminAuth(request);
+  if (authErr) return authErr;
 
   try {
     const supabase = getAdminClient();
     const now = new Date();
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
     // Batch all independent queries in parallel
@@ -30,30 +18,26 @@ export async function GET(request: NextRequest) {
       allLatestRes,
       totalRunsRes,
       actionItemsRes,
-      runs7dRes,
       runs30dRes,
       latestSummaryRes,
     ] = await Promise.all([
-      // Single query for latest runs — get recent runs for all agent types at once
+      // Single query for latest runs — limit to 50 (6 agent types)
       supabase
         .from("agent_runs")
         .select("*")
         .in("agent_type", ALL_AGENT_TYPES as unknown as string[])
-        .order("created_at", { ascending: false }),
+        .order("created_at", { ascending: false })
+        .limit(50),
       supabase
         .from("agent_runs")
         .select("*", { count: "exact", head: true }),
       supabase
         .from("agent_action_items")
         .select("status, priority, agent_type"),
+      // Single 30d query — compute 7d subset in JS
       supabase
         .from("agent_runs")
-        .select("cost_usd, agent_type")
-        .gte("created_at", sevenDaysAgo)
-        .eq("status", "completed"),
-      supabase
-        .from("agent_runs")
-        .select("cost_usd")
+        .select("cost_usd, agent_type, created_at")
         .gte("created_at", thirtyDaysAgo)
         .eq("status", "completed"),
       supabase
@@ -91,17 +75,22 @@ export async function GET(request: NextRequest) {
       if (status in actionItemsByStatus) actionItemsByStatus[status]++;
     }
 
-    // Costs — compute from the already-fetched 7d runs
-    const runs7d = runs7dRes.data ?? [];
-    const cost7d = runs7d.reduce((sum, r) => sum + Number(r.cost_usd), 0);
-    const cost30d = (runs30dRes.data ?? []).reduce((sum, r) => sum + Number(r.cost_usd), 0);
-
-    // Cost per agent (from the same 7d query, grouped in JS)
+    // Costs — compute both 7d and 30d from a single 30d query
+    const runs30d = runs30dRes.data ?? [];
+    let cost7d = 0;
+    let cost30d = 0;
     const costPerAgent: Record<string, number> = {};
     for (const t of ALL_AGENT_TYPES) costPerAgent[t] = 0;
-    for (const r of runs7d) {
-      const type = r.agent_type as string;
-      if (type in costPerAgent) costPerAgent[type] += Number(r.cost_usd);
+
+    for (const r of runs30d) {
+      const cost = Number(r.cost_usd);
+      cost30d += cost;
+      const isRecent = new Date(r.created_at as string) >= sevenDaysAgo;
+      if (isRecent) {
+        cost7d += cost;
+        const type = r.agent_type as string;
+        if (type in costPerAgent) costPerAgent[type] += cost;
+      }
     }
 
     const latestSummary = latestSummaryRes.data;

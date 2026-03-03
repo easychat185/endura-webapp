@@ -1,6 +1,7 @@
 "use client";
 
 import { AgentStatusBadge } from "./AgentStatusBadge";
+import { AGENT_LABELS } from "@/lib/agents/types";
 
 interface AgentRun {
   id: string;
@@ -13,15 +14,6 @@ interface AgentRun {
   error?: string;
 }
 
-const AGENT_LABELS: Record<string, string> = {
-  "market-research": "Market Research",
-  "marketing-content": "Marketing Content",
-  "code-quality": "Code Quality",
-  "ui-ux": "UI/UX Analysis",
-  "dr-maya-knowledge": "Dr. Maya Knowledge",
-  "master-coordinator": "Master Coordinator",
-};
-
 export function AgentRunCard({
   agentType,
   run,
@@ -33,7 +25,7 @@ export function AgentRunCard({
   onRunNow: () => void;
   isRunning: boolean;
 }) {
-  const label = AGENT_LABELS[agentType] ?? agentType;
+  const label = AGENT_LABELS[agentType as keyof typeof AGENT_LABELS] ?? agentType;
   const timeAgo = run?.created_at ? formatTimeAgo(run.created_at) : "Never";
 
   return (
@@ -47,7 +39,7 @@ export function AgentRunCard({
       <div className="flex items-start justify-between">
         <div>
           <h3 className="text-sm font-medium text-white/70">{label}</h3>
-          <p className="mt-1 text-[11px] text-white/30">Last run: {timeAgo}</p>
+          <p className="mt-1 text-[11px] text-white/50">Last run: {timeAgo}</p>
         </div>
         <AgentStatusBadge status={run?.status ?? null} />
       </div>
@@ -69,6 +61,8 @@ export function AgentRunCard({
       <button
         onClick={onRunNow}
         disabled={isRunning}
+        aria-busy={isRunning}
+        aria-label={isRunning ? `Running ${label}` : `Run ${label}`}
         className="mt-4 w-full rounded-xl px-4 py-2 text-xs font-medium text-amber-200/70 transition-all duration-300 hover:text-amber-200/90 disabled:opacity-30 disabled:cursor-not-allowed"
         style={{
           background: "rgba(196,149,106,0.08)",
@@ -82,7 +76,9 @@ export function AgentRunCard({
 }
 
 function formatTimeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
+  const time = new Date(iso).getTime();
+  if (isNaN(time)) return "Unknown";
+  const diff = Date.now() - time;
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return "just now";
   if (mins < 60) return `${mins}m ago`;

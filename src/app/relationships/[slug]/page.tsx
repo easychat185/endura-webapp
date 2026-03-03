@@ -191,7 +191,7 @@ export default function GuideDetailPage() {
               <h1 className="truncate text-base font-normal tracking-wide text-white/80">
                 {guide.title}
               </h1>
-              <p className="text-xs font-light text-white/30 capitalize">
+              <p className="text-xs font-light text-white/50 capitalize">
                 {guide.category}
               </p>
             </div>
@@ -216,7 +216,7 @@ export default function GuideDetailPage() {
           <p className="mt-2 text-sm font-light text-white/40">
             {guide.subtitle}
           </p>
-          <div className="mt-4 flex items-center gap-1.5 text-xs font-light text-white/25">
+          <div className="mt-4 flex items-center gap-1.5 text-xs font-light text-white/50">
             <Clock className="h-3.5 w-3.5" />
             {guide.readTime}
           </div>
