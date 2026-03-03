@@ -140,6 +140,19 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
+    // Flush onboarding data stored before signup
+    try {
+      const pending = localStorage.getItem("endura_onboarding");
+      if (pending) {
+        localStorage.removeItem("endura_onboarding");
+        fetch("/api/onboarding", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: pending,
+        }).catch(() => { /* best-effort */ });
+      }
+    } catch { /* ignore */ }
+
     fetchDashboard();
   }, []);
 
