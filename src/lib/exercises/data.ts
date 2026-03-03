@@ -2,6 +2,7 @@ export interface ExerciseStep {
   title: string;
   instruction: string;
   durationSeconds?: number;
+  audioUrl?: string; // pre-recorded audio file path in Supabase Storage
 }
 
 export interface Exercise {
@@ -19,6 +20,8 @@ export interface Exercise {
   prerequisites?: string[];
   safetyNotes?: string;
   steps: ExerciseStep[];
+  imageKey?: string;       // maps to reusable diagram (e.g. "pelvic-floor")
+  muscleGroups?: string[]; // e.g. ["pc-muscle", "diaphragm"]
 }
 
 // Re-export all exercises from tier files

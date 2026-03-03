@@ -13,6 +13,9 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { getExerciseBySlug } from "@/lib/exercises/data";
+import ExerciseImage from "@/components/exercises/ExerciseImage";
+import AudioControls from "@/components/exercises/AudioControls";
+import { useGuidedAudio } from "@/hooks/useGuidedAudio";
 import { createClient } from "@/lib/supabase/client";
 import { fadeUp } from "@/lib/animations";
 import { trackEvent } from "@/lib/analytics";
@@ -95,7 +98,24 @@ export default function ExerciseDetailPage() {
   const [saving, setSaving] = useState(false);
   const [showPulse, setShowPulse] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [audioEnabled, setAudioEnabled] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { playStep, stopAudio, pauseAudio, resumeAudio } = useGuidedAudio();
+
+  // Load audio preference from localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("endura_audio_guidance");
+      if (stored === "true") setAudioEnabled(true);
+    } catch {}
+  }, []);
+
+  const toggleAudio = () => {
+    const next = !audioEnabled;
+    setAudioEnabled(next);
+    try { localStorage.setItem("endura_audio_guidance", String(next)); } catch {}
+    if (!next) stopAudio();
+  };
 
   const step = exercise?.steps[currentStep];
   const totalSteps = exercise?.steps.length ?? 0;
@@ -134,6 +154,24 @@ export default function ExerciseDetailPage() {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [isRunning, timeLeft]);
+
+  // Sync audio with exercise state
+  useEffect(() => {
+    if (!audioEnabled || !step) return;
+    if (isRunning) {
+      playStep(step);
+    } else {
+      pauseAudio();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRunning, currentStep, audioEnabled]);
+
+  // Stop audio on completion or unmount
+  useEffect(() => {
+    if (completed) stopAudio();
+    return () => stopAudio();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [completed]);
 
   const handleNextStep = useCallback(() => {
     if (isLastStep) {
@@ -276,6 +314,22 @@ export default function ExerciseDetailPage() {
           />
         </div>
       </header>
+
+      {/* Hero image — collapses when timer is running */}
+      <AnimatePresence>
+        {!isRunning && !completed && (
+          <motion.div
+            key="hero-image"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.4 }}
+            className="mx-auto max-w-2xl px-5 pt-6 sm:px-8"
+          >
+            <ExerciseImage exercise={exercise} size="detail" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main content */}
       <div className="flex flex-1 flex-col items-center justify-center px-5 py-8 sm:px-8">
@@ -440,6 +494,11 @@ export default function ExerciseDetailPage() {
                     <SkipForward className="h-4 w-4" />
                   </button>
                 )}
+              </div>
+
+              {/* Audio toggle */}
+              <div className="mt-4 flex justify-center">
+                <AudioControls enabled={audioEnabled} onToggle={toggleAudio} />
               </div>
             </motion.div>
           )}

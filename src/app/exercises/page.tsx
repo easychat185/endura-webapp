@@ -17,6 +17,7 @@ import {
   Users,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
+import ExerciseImage from "@/components/exercises/ExerciseImage";
 import { fadeUpIndexed, staggerContainer } from "@/lib/animations";
 import { exercises, type Exercise } from "@/lib/exercises/data";
 import { createClient } from "@/lib/supabase/client";
@@ -221,12 +222,7 @@ export default function ExercisesPage() {
                       border: "1px solid rgba(196,149,106,0.1)",
                     }}
                   >
-                    <div
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-                      style={{ background: "rgba(196,149,106,0.08)" }}
-                    >
-                      {getCategoryIcon(ex.category)}
-                    </div>
+                    <ExerciseImage exercise={ex} size="thumbnail" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-normal text-white/70 truncate">{ex.title}</p>
                       <div className="flex items-center gap-2 mt-0.5">
@@ -325,12 +321,7 @@ export default function ExercisesPage() {
                       <Link key={exercise.slug} href={`/exercises/${exercise.slug}`}>
                         <div className="glass p-5 transition-all duration-500 hover:border-amber-300/[0.08]">
                           <div className="flex items-start gap-4">
-                            <div
-                              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-                              style={{ background: "rgba(196,149,106,0.06)" }}
-                            >
-                              {getCategoryIcon(exercise.category)}
-                            </div>
+                            <ExerciseImage exercise={exercise} size="thumbnail" />
                             <div className="flex-1">
                               <div className="flex items-center justify-between">
                                 <h3 className="text-sm font-normal tracking-wide text-white/75">

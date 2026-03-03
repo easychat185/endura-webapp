@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { User, CreditCard, Shield, Trash2, LogOut, Bell, Info, Star, Trophy, BellRing } from "lucide-react";
+import { User, CreditCard, Shield, Trash2, LogOut, Bell, Info, Star, Trophy, BellRing, Volume2 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { fadeUpIndexed, staggerContainer } from "@/lib/animations";
 import { createClient } from "@/lib/supabase/client";
@@ -27,10 +27,11 @@ export default function SettingsPage() {
   const [reminderTime, setReminderTime] = useState("09:00");
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
+  const [voiceGuidance, setVoiceGuidance] = useState(false);
   const router = useRouter();
   const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
 
-  // Load reminder prefs from localStorage
+  // Load reminder + voice guidance prefs from localStorage
   useEffect(() => {
     try {
       const stored = localStorage.getItem("endura_reminders");
@@ -39,6 +40,8 @@ export default function SettingsPage() {
         setRemindersEnabled(data.enabled ?? true);
         setReminderTime(data.time ?? "09:00");
       }
+      const audioStored = localStorage.getItem("endura_audio_guidance");
+      if (audioStored === "true") setVoiceGuidance(true);
     } catch {
       // Use defaults
     }
@@ -295,6 +298,56 @@ export default function SettingsPage() {
                     />
                   </div>
                 )}
+              </div>
+            </motion.section>
+
+            {/* Voice Guidance Section */}
+            <motion.section
+              custom={2.3}
+              variants={fadeUpIndexed}
+              className="glass mt-5 p-7 sm:p-8"
+            >
+              <div className="flex items-center gap-3 mb-5">
+                <Volume2 className="h-5 w-5 text-amber-300/40" />
+                <h2 className="text-base font-normal tracking-wide text-white/70">
+                  Voice Guidance
+                </h2>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-sm font-light text-white/45">
+                      Audio during exercises
+                    </span>
+                    <p className="text-xs font-light text-white/40 mt-0.5">
+                      Reads step instructions aloud
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      const next = !voiceGuidance;
+                      setVoiceGuidance(next);
+                      try { localStorage.setItem("endura_audio_guidance", String(next)); } catch {}
+                      trackEvent("settings_changed", { setting: "voice_guidance", value: next });
+                    }}
+                    className="relative h-8 w-14 rounded-full transition-all duration-300"
+                    style={{
+                      background: voiceGuidance
+                        ? "rgba(196,149,106,0.25)"
+                        : "rgba(255,255,255,0.06)",
+                    }}
+                  >
+                    <span
+                      className="absolute top-0.5 h-7 w-7 rounded-full transition-all duration-300"
+                      style={{
+                        left: voiceGuidance ? "calc(100% - 30px)" : "2px",
+                        background: voiceGuidance
+                          ? "rgba(212,180,140,0.8)"
+                          : "rgba(255,255,255,0.25)",
+                      }}
+                    />
+                  </button>
+                </div>
               </div>
             </motion.section>
 
