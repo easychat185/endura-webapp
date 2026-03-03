@@ -8,14 +8,17 @@ interface XPProgressBarProps {
   xpInLevel: number;
   xpNeeded: number;
   totalXP: number;
+  tier?: number;
+  tierName?: string;
 }
 
-export default function XPProgressBar({ level, levelTitle, xpInLevel, xpNeeded, totalXP }: XPProgressBarProps) {
+export default function XPProgressBar({ level, levelTitle, xpInLevel, xpNeeded, totalXP, tier, tierName }: XPProgressBarProps) {
   const percent = xpNeeded > 0 ? Math.min((xpInLevel / xpNeeded) * 100, 100) : 100;
+  const tierProgress = tier ? ((level - 1) % 10) + 1 : undefined;
 
   return (
     <div className="glass p-5 sm:p-6">
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
           <span
             className="text-lg font-light"
@@ -29,6 +32,17 @@ export default function XPProgressBar({ level, levelTitle, xpInLevel, xpNeeded, 
           {totalXP.toLocaleString()} XP
         </span>
       </div>
+
+      {tier && tierName && (
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-xs font-light" style={{ color: "rgba(196,149,106,0.5)" }}>
+            Tier {tier}: {tierName}
+          </span>
+          <span className="text-xs font-light text-white/30">
+            {tierProgress}/10 in tier
+          </span>
+        </div>
+      )}
 
       <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.04]">
         <motion.div
@@ -47,9 +61,15 @@ export default function XPProgressBar({ level, levelTitle, xpInLevel, xpNeeded, 
         <span className="text-xs font-light" style={{ color: "rgba(250,204,21,0.4)" }}>
           {xpInLevel}/{xpNeeded} XP
         </span>
-        <span className="text-xs font-light text-white/40">
-          Level {level + 1}
-        </span>
+        {level < 100 ? (
+          <span className="text-xs font-light text-white/40">
+            Level {level + 1}
+          </span>
+        ) : (
+          <span className="text-xs font-light" style={{ color: "rgba(250,204,21,0.5)" }}>
+            Max Level
+          </span>
+        )}
       </div>
     </div>
   );

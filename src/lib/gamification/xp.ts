@@ -150,10 +150,12 @@ export async function awardXP(
   // Update gamification state
   const newLevel = getLevelFromXP(newTotalXP);
 
-  // Check if we should award streak shields on level-up
+  // Award streak shields at tier completion milestones
   let newShields = gamification?.streak_shields ?? 0;
-  if (newLevel.level >= 7 && previousLevel < 7) newShields += 1;
-  if (newLevel.level >= 11 && previousLevel < 11) newShields += 1;
+  const shieldLevels = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+  for (const sl of shieldLevels) {
+    if (newLevel.level >= sl && previousLevel < sl) newShields += 1;
+  }
 
   if (gamification) {
     await supabase

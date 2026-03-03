@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 
 export type BadgeRarity = "common" | "uncommon" | "rare" | "legendary";
-export type BadgeCategory = "streak" | "exercise" | "session" | "score" | "level" | "special";
+export type BadgeCategory = "streak" | "exercise" | "session" | "score" | "level" | "tier" | "special";
 
 export interface BadgeDefinition {
   id: string;
@@ -24,7 +24,9 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   { id: "streak_100", label: "Century Club", description: "Maintain a 100-day streak", icon: "flame", rarity: "legendary", xp_reward: 30, category: "streak" },
 
   // Exercise badges
-  { id: "technique_collector", label: "Technique Collector", description: "Complete all 7 exercises", icon: "trophy", rarity: "uncommon", xp_reward: 30, category: "exercise" },
+  { id: "technique_collector", label: "Technique Collector", description: "Complete 20 different exercises", icon: "trophy", rarity: "uncommon", xp_reward: 30, category: "exercise" },
+  { id: "exercise_explorer", label: "Exercise Explorer", description: "Complete 50 different exercises", icon: "trophy", rarity: "rare", xp_reward: 50, category: "exercise" },
+  { id: "exercise_master", label: "Exercise Master", description: "Complete all exercises", icon: "trophy", rarity: "legendary", xp_reward: 100, category: "exercise" },
   { id: "early_bird", label: "Early Bird", description: "Complete an exercise before 8 AM", icon: "sun", rarity: "common", xp_reward: 30, category: "exercise" },
   { id: "speed_runner", label: "Speed Runner", description: "Complete an exercise in record time", icon: "zap", rarity: "common", xp_reward: 30, category: "exercise" },
 
@@ -40,10 +42,24 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   { id: "triple_threat", label: "Triple Threat", description: "All three scores at 7+", icon: "award", rarity: "rare", xp_reward: 30, category: "score" },
   { id: "perfect_10", label: "Perfect 10", description: "Any score reaches 10", icon: "star", rarity: "legendary", xp_reward: 30, category: "score" },
 
-  // Level badges
-  { id: "level_5", label: "Level 5", description: "Reach Level 5", icon: "badge", rarity: "uncommon", xp_reward: 30, category: "level" },
-  { id: "level_10", label: "Level 10", description: "Reach Level 10", icon: "badge", rarity: "rare", xp_reward: 30, category: "level" },
-  { id: "level_15", label: "Level 15", description: "Reach Level 15", icon: "badge", rarity: "legendary", xp_reward: 30, category: "level" },
+  // Level milestone badges
+  { id: "level_10", label: "Foundation Complete", description: "Complete Tier 1 (Level 10)", icon: "badge", rarity: "uncommon", xp_reward: 50, category: "level" },
+  { id: "level_25", label: "Quarter Warrior", description: "Reach the quarter mark (Level 25)", icon: "badge", rarity: "rare", xp_reward: 75, category: "level" },
+  { id: "level_50", label: "Halfway Warrior", description: "Reach the halfway point (Level 50)", icon: "badge", rarity: "rare", xp_reward: 100, category: "level" },
+  { id: "level_75", label: "Master's Path", description: "Reach the three-quarter mark (Level 75)", icon: "badge", rarity: "legendary", xp_reward: 150, category: "level" },
+  { id: "level_100", label: "Transcendent", description: "Complete all 100 levels", icon: "badge", rarity: "legendary", xp_reward: 300, category: "level" },
+
+  // Tier completion badges
+  { id: "tier_1", label: "Foundation Built", description: "Complete Tier 1: Foundation", icon: "layers", rarity: "common", xp_reward: 30, category: "tier" },
+  { id: "tier_2", label: "Awakened", description: "Complete Tier 2: Awakening", icon: "layers", rarity: "common", xp_reward: 40, category: "tier" },
+  { id: "tier_3", label: "Developer", description: "Complete Tier 3: Development", icon: "layers", rarity: "uncommon", xp_reward: 50, category: "tier" },
+  { id: "tier_4", label: "Strengthened", description: "Complete Tier 4: Strengthening", icon: "layers", rarity: "uncommon", xp_reward: 60, category: "tier" },
+  { id: "tier_5", label: "Integrated", description: "Complete Tier 5: Integration", icon: "layers", rarity: "rare", xp_reward: 70, category: "tier" },
+  { id: "tier_6", label: "Refined", description: "Complete Tier 6: Refinement", icon: "layers", rarity: "rare", xp_reward: 80, category: "tier" },
+  { id: "tier_7", label: "Transformed", description: "Complete Tier 7: Transformation", icon: "layers", rarity: "rare", xp_reward: 90, category: "tier" },
+  { id: "tier_8", label: "Mastery Bound", description: "Complete Tier 8: Mastery Preparation", icon: "layers", rarity: "legendary", xp_reward: 100, category: "tier" },
+  { id: "tier_9", label: "Master", description: "Complete Tier 9: Mastery", icon: "layers", rarity: "legendary", xp_reward: 120, category: "tier" },
+  { id: "tier_10", label: "Transcendent Master", description: "Complete Tier 10: Transcendence", icon: "layers", rarity: "legendary", xp_reward: 200, category: "tier" },
 
   // Special badges
   { id: "first_steps", label: "First Steps", description: "Complete onboarding", icon: "footprints", rarity: "common", xp_reward: 30, category: "special" },
@@ -142,7 +158,9 @@ export async function checkBadges(
       case "streak_100": earned = effectiveStreak >= 100; break;
 
       // Exercise badges
-      case "technique_collector": earned = uniqueExercises.size >= 7; break;
+      case "technique_collector": earned = uniqueExercises.size >= 20; break;
+      case "exercise_explorer": earned = uniqueExercises.size >= 50; break;
+      case "exercise_master": earned = uniqueExercises.size >= 85; break;
       case "early_bird": {
         const hour = new Date().getHours();
         earned = context.source === "exercise" && hour < 8;
@@ -175,10 +193,24 @@ export async function checkBadges(
         ));
         break;
 
-      // Level badges
-      case "level_5": earned = (context.newLevel ?? gam?.level ?? 1) >= 5; break;
+      // Level milestone badges
       case "level_10": earned = (context.newLevel ?? gam?.level ?? 1) >= 10; break;
-      case "level_15": earned = (context.newLevel ?? gam?.level ?? 1) >= 15; break;
+      case "level_25": earned = (context.newLevel ?? gam?.level ?? 1) >= 25; break;
+      case "level_50": earned = (context.newLevel ?? gam?.level ?? 1) >= 50; break;
+      case "level_75": earned = (context.newLevel ?? gam?.level ?? 1) >= 75; break;
+      case "level_100": earned = (context.newLevel ?? gam?.level ?? 1) >= 100; break;
+
+      // Tier completion badges
+      case "tier_1": earned = (context.newLevel ?? gam?.level ?? 1) >= 10; break;
+      case "tier_2": earned = (context.newLevel ?? gam?.level ?? 1) >= 20; break;
+      case "tier_3": earned = (context.newLevel ?? gam?.level ?? 1) >= 30; break;
+      case "tier_4": earned = (context.newLevel ?? gam?.level ?? 1) >= 40; break;
+      case "tier_5": earned = (context.newLevel ?? gam?.level ?? 1) >= 50; break;
+      case "tier_6": earned = (context.newLevel ?? gam?.level ?? 1) >= 60; break;
+      case "tier_7": earned = (context.newLevel ?? gam?.level ?? 1) >= 70; break;
+      case "tier_8": earned = (context.newLevel ?? gam?.level ?? 1) >= 80; break;
+      case "tier_9": earned = (context.newLevel ?? gam?.level ?? 1) >= 90; break;
+      case "tier_10": earned = (context.newLevel ?? gam?.level ?? 1) >= 100; break;
 
       // Special badges
       case "first_steps": earned = profile?.onboarding_completed ?? false; break;

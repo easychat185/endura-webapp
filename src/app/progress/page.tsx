@@ -214,7 +214,7 @@ export default function ProgressPage() {
   const [saving, setSaving] = useState(false);
 
   // Gamification state
-  const [gamData, setGamData] = useState<{ totalXP: number; level: number; levelTitle: string; xpInLevel: number; xpNeeded: number } | null>(null);
+  const [gamData, setGamData] = useState<{ totalXP: number; level: number; levelTitle: string; tier?: number; tierName?: string; xpInLevel: number; xpNeeded: number } | null>(null);
   const [badges, setBadges] = useState<{ badges: BadgeData[]; earnedCount: number; totalCount: number } | null>(null);
   const [leaderboard, setLeaderboard] = useState<{ entries: LeaderboardEntry[]; myEntry: LeaderboardEntry | null; optedIn: boolean } | null>(null);
   const [leaderboardPeriod, setLeaderboardPeriod] = useState<"weekly" | "monthly" | "alltime">("weekly");
@@ -436,6 +436,8 @@ export default function ProgressPage() {
                   xpInLevel={gamData.xpInLevel}
                   xpNeeded={gamData.xpNeeded}
                   totalXP={gamData.totalXP}
+                  tier={gamData.tier}
+                  tierName={gamData.tierName}
                 />
               </motion.section>
             )}

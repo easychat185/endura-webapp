@@ -53,6 +53,8 @@ interface DashboardData {
     totalXP: number;
     level: number;
     levelTitle: string;
+    tier: number;
+    tierName: string;
     xpInLevel: number;
     xpNeeded: number;
     currentStreak: number;
@@ -321,6 +323,8 @@ export default function DashboardPage() {
                   xpInLevel={gam.xpInLevel}
                   xpNeeded={gam.xpNeeded}
                   totalXP={gam.totalXP}
+                  tier={gam.tier}
+                  tierName={gam.tierName}
                 />
               </motion.section>
             )}

@@ -1,15 +1,52 @@
 import { createClient } from "@/lib/supabase/server";
 
 const DEFAULT_MILESTONES = [
+  // Onboarding
   "Completed onboarding",
-  "First week streak",
+
+  // Tier milestones
+  "Complete Tier 1: Foundation (Level 10)",
+  "Complete Tier 2: Awakening (Level 20)",
+  "Reach the Quarter Mark (Level 25)",
+  "Complete Tier 3: Development (Level 30)",
+  "Complete Tier 4: Strengthening (Level 40)",
+  "Reach the Halfway Point (Level 50)",
+  "Complete Tier 6: Refinement (Level 60)",
+  "Complete Tier 7: Transformation (Level 70)",
+  "Reach the Three-Quarter Mark (Level 75)",
+  "Complete Tier 8: Mastery Preparation (Level 80)",
+  "Complete Tier 9: Mastery (Level 90)",
+  "Achieve Transcendence (Level 100)",
+
+  // Score milestones
   "Control score reached 5",
+  "Control score reached 7",
+  "Confidence score reached 8",
+
+  // Session milestones
   "Had 10 sessions with Dr. Maya",
-  "Control score reaches 7",
-  "Complete 4-week program",
-  "Confidence score reaches 8",
-  "Complete full program",
+  "Had 50 sessions with Dr. Maya",
+
+  // Streak milestones
+  "First week streak",
+  "30-day streak",
 ];
+
+// Map milestone labels to the level they require
+const LEVEL_MILESTONES: Record<string, number> = {
+  "Complete Tier 1: Foundation (Level 10)": 10,
+  "Complete Tier 2: Awakening (Level 20)": 20,
+  "Reach the Quarter Mark (Level 25)": 25,
+  "Complete Tier 3: Development (Level 30)": 30,
+  "Complete Tier 4: Strengthening (Level 40)": 40,
+  "Reach the Halfway Point (Level 50)": 50,
+  "Complete Tier 6: Refinement (Level 60)": 60,
+  "Complete Tier 7: Transformation (Level 70)": 70,
+  "Reach the Three-Quarter Mark (Level 75)": 75,
+  "Complete Tier 8: Mastery Preparation (Level 80)": 80,
+  "Complete Tier 9: Mastery (Level 90)": 90,
+  "Achieve Transcendence (Level 100)": 100,
+};
 
 export async function generateInitialMilestones(userId: string) {
   const supabase = await createClient();
@@ -47,12 +84,15 @@ export async function checkAndUpdateMilestones(userId: string) {
   const uncompleted = milestones.filter((m) => !m.completed);
   if (uncompleted.length === 0) return;
 
-  // Get profile
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("program_week, program_length")
-    .eq("id", userId)
+  // Get gamification state
+  const { data: gam } = await supabase
+    .from("user_gamification")
+    .select("level, current_streak, longest_streak")
+    .eq("user_id", userId)
     .maybeSingle();
+
+  const userLevel = gam?.level ?? 1;
+  const effectiveStreak = Math.max(gam?.current_streak ?? 0, gam?.longest_streak ?? 0);
 
   // Get latest scores
   const { data: latestScore } = await supabase
@@ -69,45 +109,41 @@ export async function checkAndUpdateMilestones(userId: string) {
     .select("*", { count: "exact", head: true })
     .eq("user_id", userId);
 
-  // Get streak (consecutive days with a score or session)
-  const { data: recentScores } = await supabase
-    .from("daily_scores")
-    .select("logged_at")
-    .eq("user_id", userId)
-    .order("logged_at", { ascending: false })
-    .limit(7);
-
   const now = new Date().toISOString();
 
   for (const milestone of uncompleted) {
     let shouldComplete = false;
 
-    switch (milestone.label) {
-      case "Completed onboarding":
-        shouldComplete = true;
-        break;
-      case "First week streak":
-        shouldComplete = (recentScores?.length ?? 0) >= 7;
-        break;
-      case "Control score reached 5":
-        shouldComplete = (latestScore?.control_score ?? 0) >= 5;
-        break;
-      case "Had 10 sessions with Dr. Maya":
-        shouldComplete = (sessionCount ?? 0) >= 10;
-        break;
-      case "Control score reaches 7":
-        shouldComplete = (latestScore?.control_score ?? 0) >= 7;
-        break;
-      case "Complete 4-week program":
-        shouldComplete = (profile?.program_week ?? 0) >= 4;
-        break;
-      case "Confidence score reaches 8":
-        shouldComplete = (latestScore?.confidence_score ?? 0) >= 8;
-        break;
-      case "Complete full program":
-        shouldComplete =
-          (profile?.program_week ?? 0) >= (profile?.program_length ?? 8);
-        break;
+    // Check level-based milestones dynamically
+    if (milestone.label in LEVEL_MILESTONES) {
+      shouldComplete = userLevel >= LEVEL_MILESTONES[milestone.label];
+    } else {
+      switch (milestone.label) {
+        case "Completed onboarding":
+          shouldComplete = true;
+          break;
+        case "First week streak":
+          shouldComplete = effectiveStreak >= 7;
+          break;
+        case "30-day streak":
+          shouldComplete = effectiveStreak >= 30;
+          break;
+        case "Control score reached 5":
+          shouldComplete = (latestScore?.control_score ?? 0) >= 5;
+          break;
+        case "Control score reached 7":
+          shouldComplete = (latestScore?.control_score ?? 0) >= 7;
+          break;
+        case "Confidence score reached 8":
+          shouldComplete = (latestScore?.confidence_score ?? 0) >= 8;
+          break;
+        case "Had 10 sessions with Dr. Maya":
+          shouldComplete = (sessionCount ?? 0) >= 10;
+          break;
+        case "Had 50 sessions with Dr. Maya":
+          shouldComplete = (sessionCount ?? 0) >= 50;
+          break;
+      }
     }
 
     if (shouldComplete) {

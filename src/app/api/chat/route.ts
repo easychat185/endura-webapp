@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { createClient } from "@/lib/supabase/server";
 import { buildSessionPrompt } from "@/lib/prompts/dr-maya";
+import { getLevelFromXP } from "@/lib/gamification/levels";
 import { selectModel } from "@/lib/chat/model-router";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { isValidUUID, sanitizeMessage } from "@/lib/validation";
@@ -106,7 +107,7 @@ export async function POST(request: NextRequest) {
     const userMessageId = userMsgData?.id;
 
     // Parallelize remaining reads
-    const [onboardingRes, priorSessionsRes, sessionMessagesRes] = await Promise.all([
+    const [onboardingRes, priorSessionsRes, sessionMessagesRes, gamRes] = await Promise.all([
       supabase
         .from("onboarding_responses")
         .select("*")
@@ -128,6 +129,11 @@ export async function POST(request: NextRequest) {
         .eq("conversation_id", conversationId)
         .order("created_at", { ascending: true })
         .limit(40),
+      supabase
+        .from("user_gamification")
+        .select("total_xp, level")
+        .eq("user_id", user.id)
+        .maybeSingle(),
     ]);
 
     const onboarding = onboardingRes.data;
@@ -138,11 +144,22 @@ export async function POST(request: NextRequest) {
       .map((s) => s.summary)
       .filter(Boolean) as string[];
 
+    // Build user progress for Dr. Maya prompt
+    const totalXP = gamRes.data?.total_xp ?? 0;
+    const levelDef = getLevelFromXP(totalXP);
+    const userProgress = {
+      level: levelDef.level,
+      tier: levelDef.tier,
+      tierName: levelDef.tierName,
+      totalXP,
+    };
+
     // Build system prompt
     const systemPrompt = buildSessionPrompt(
       onboarding,
       summaries,
-      conversation.session_number
+      conversation.session_number,
+      userProgress
     );
 
     // Build message history for Claude

@@ -44,6 +44,8 @@ export async function GET() {
       totalXP,
       level: levelDef.level,
       levelTitle: levelDef.title,
+      tier: levelDef.tier,
+      tierName: levelDef.tierName,
       xpInLevel,
       xpNeeded,
       currentStreak: gam?.current_streak ?? 0,

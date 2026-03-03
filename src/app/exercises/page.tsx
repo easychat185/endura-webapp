@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -11,18 +11,57 @@ import {
   Lock,
   ChevronRight,
   Sparkles,
+  Wind,
+  Heart,
+  Zap,
+  Users,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { fadeUpIndexed, staggerContainer } from "@/lib/animations";
 import { exercises, type Exercise } from "@/lib/exercises/data";
 import { createClient } from "@/lib/supabase/client";
-import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { getTierForLevel } from "@/lib/gamification/levels";
+
+type CategoryFilter = "all" | Exercise["category"];
+
+const TIER_NAMES: Record<number, string> = {
+  1: "Foundation",
+  2: "Awakening",
+  3: "Development",
+  4: "Strengthening",
+  5: "Integration",
+  6: "Refinement",
+  7: "Transformation",
+  8: "Mastery Preparation",
+  9: "Mastery",
+  10: "Transcendence",
+};
+
+const CATEGORY_LABELS: Record<CategoryFilter, string> = {
+  all: "All",
+  physical: "Techniques",
+  somatic: "Somatic",
+  breathwork: "Breathwork",
+  meditation: "Meditation",
+  energy: "Energy",
+  partner: "Partner",
+};
+
+const CATEGORY_ICONS: Record<Exercise["category"], typeof Dumbbell> = {
+  physical: Dumbbell,
+  somatic: Brain,
+  breathwork: Wind,
+  meditation: Heart,
+  energy: Zap,
+  partner: Users,
+};
 
 export default function ExercisesPage() {
   const [userLevel, setUserLevel] = useState(1);
   const [completedSlugs, setCompletedSlugs] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<"all" | "physical" | "somatic">("all");
+  const [filter, setFilter] = useState<CategoryFilter>("all");
+  const filterRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function load() {
@@ -33,7 +72,6 @@ export default function ExercisesPage() {
         } = await supabase.auth.getUser();
         if (!user) return;
 
-        // Get gamification level
         const { data: gam } = await supabase
           .from("user_gamification")
           .select("level")
@@ -65,15 +103,30 @@ export default function ExercisesPage() {
 
   const isLocked = (ex: Exercise) => ex.levelUnlock > userLevel;
 
+  // Group exercises by tier
+  const { tier: userTier } = getTierForLevel(userLevel);
+  const exercisesByTier = new Map<number, Exercise[]>();
+  for (const ex of filtered) {
+    const list = exercisesByTier.get(ex.tier) ?? [];
+    list.push(ex);
+    exercisesByTier.set(ex.tier, list);
+  }
+
   // Today's recommended: pick up to 2 unlocked exercises the user hasn't completed
   const recommended = exercises
     .filter((e) => !isLocked(e) && !completedSlugs.has(e.slug))
     .slice(0, 2);
-  // Fallback: if user completed everything, show first 2 unlocked
   const dailyPicks =
     recommended.length > 0
       ? recommended
       : exercises.filter((e) => !isLocked(e)).slice(0, 2);
+
+  const unlocked = exercises.filter((e) => !isLocked(e)).length;
+
+  const getCategoryIcon = (category: Exercise["category"]) => {
+    const Icon = CATEGORY_ICONS[category];
+    return <Icon className="h-5 w-5 text-amber-300/40" />;
+  };
 
   return (
     <div className="relative min-h-screen font-sans text-white pb-24">
@@ -95,7 +148,7 @@ export default function ExercisesPage() {
                 Exercises
               </h1>
               <p className="text-xs font-light text-white/50">
-                {exercises.filter((e) => !isLocked(e)).length} unlocked
+                {unlocked} unlocked · Tier {userTier}: {TIER_NAMES[userTier]}
               </p>
             </div>
           </div>
@@ -112,35 +165,41 @@ export default function ExercisesPage() {
         animate="visible"
         variants={staggerContainer}
       >
-        {/* Filter Tabs */}
+        {/* Scrollable Filter Tabs */}
         <motion.div
           custom={0}
           variants={fadeUpIndexed}
-          className="flex gap-2 mb-6"
+          className="mb-6 -mx-5 px-5 sm:-mx-8 sm:px-8"
         >
-          {(["all", "physical", "somatic"] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className="rounded-full px-4 py-2 text-xs font-normal capitalize transition-all duration-300"
-              style={{
-                background:
-                  filter === f
-                    ? "rgba(196,149,106,0.1)"
-                    : "rgba(255,255,255,0.03)",
-                border:
-                  filter === f
-                    ? "1px solid rgba(196,149,106,0.15)"
-                    : "1px solid rgba(255,255,255,0.04)",
-                color:
-                  filter === f
-                    ? "rgba(212,180,140,0.8)"
-                    : "rgba(255,255,255,0.4)",
-              }}
-            >
-              {f === "all" ? "All" : f === "physical" ? "Techniques" : "Mindfulness"}
-            </button>
-          ))}
+          <div
+            ref={filterRef}
+            className="flex gap-2 overflow-x-auto scrollbar-none pb-1"
+            style={{ WebkitOverflowScrolling: "touch" }}
+          >
+            {(Object.keys(CATEGORY_LABELS) as CategoryFilter[]).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className="shrink-0 rounded-full px-4 py-2 text-xs font-normal capitalize transition-all duration-300"
+                style={{
+                  background:
+                    filter === f
+                      ? "rgba(196,149,106,0.1)"
+                      : "rgba(255,255,255,0.03)",
+                  border:
+                    filter === f
+                      ? "1px solid rgba(196,149,106,0.15)"
+                      : "1px solid rgba(255,255,255,0.04)",
+                  color:
+                    filter === f
+                      ? "rgba(212,180,140,0.8)"
+                      : "rgba(255,255,255,0.4)",
+                }}
+              >
+                {CATEGORY_LABELS[f]}
+              </button>
+            ))}
+          </div>
         </motion.div>
 
         {/* Today's Pick */}
@@ -166,11 +225,7 @@ export default function ExercisesPage() {
                       className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
                       style={{ background: "rgba(196,149,106,0.08)" }}
                     >
-                      {ex.category === "somatic" ? (
-                        <Brain className="h-4 w-4 text-amber-300/50" />
-                      ) : (
-                        <Dumbbell className="h-4 w-4 text-amber-300/50" />
-                      )}
+                      {getCategoryIcon(ex.category)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-normal text-white/70 truncate">{ex.title}</p>
@@ -189,88 +244,130 @@ export default function ExercisesPage() {
           </motion.div>
         )}
 
-        {/* Exercise Cards */}
-        <div className="space-y-4">
-          {filtered.map((exercise, idx) => {
-            const locked = isLocked(exercise);
-            const completed = completedSlugs.has(exercise.slug);
+        {/* Exercises grouped by Tier */}
+        {Array.from(exercisesByTier.entries())
+          .sort(([a], [b]) => a - b)
+          .map(([tier, tierExercises]) => {
+            const hasUnlocked = tierExercises.some((e) => !isLocked(e));
+            const allLocked = tierExercises.every((e) => isLocked(e));
 
             return (
-              <motion.div key={exercise.slug} custom={idx + 2 + (dailyPicks.length > 0 ? 1 : 0)} variants={fadeUpIndexed}>
-                {locked ? (
+              <motion.div
+                key={tier}
+                custom={tier + 2}
+                variants={fadeUpIndexed}
+                className="mb-8"
+              >
+                {/* Tier Header */}
+                <div className="flex items-center gap-3 mb-4">
                   <div
-                    className="glass p-6 opacity-40"
-                    style={{ filter: "grayscale(0.5)" }}
+                    className="flex h-7 items-center rounded-full px-3 text-[10px] font-medium uppercase tracking-wider"
+                    style={{
+                      background: hasUnlocked
+                        ? "rgba(196,149,106,0.08)"
+                        : "rgba(255,255,255,0.03)",
+                      color: hasUnlocked
+                        ? "rgba(212,180,140,0.7)"
+                        : "rgba(255,255,255,0.3)",
+                      border: hasUnlocked
+                        ? "1px solid rgba(196,149,106,0.1)"
+                        : "1px solid rgba(255,255,255,0.04)",
+                    }}
                   >
-                    <div className="flex items-start gap-4">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/[0.03]">
-                        <Lock className="h-5 w-5 text-white/40" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-base font-normal text-white/40">
-                          {exercise.title}
-                        </h3>
-                        <p className="mt-1 text-xs font-light text-white/40">
-                          Unlocks at Level {exercise.levelUnlock}
-                        </p>
-                      </div>
-                    </div>
+                    Tier {tier}
                   </div>
-                ) : (
-                  <Link href={`/exercises/${exercise.slug}`}>
-                    <div className="glass p-6 transition-all duration-500 hover:border-amber-300/[0.08]">
-                      <div className="flex items-start gap-4">
+                  <span
+                    className="text-xs font-light"
+                    style={{
+                      color: hasUnlocked
+                        ? "rgba(255,255,255,0.5)"
+                        : "rgba(255,255,255,0.25)",
+                    }}
+                  >
+                    {TIER_NAMES[tier]}
+                  </span>
+                  {allLocked && (
+                    <Lock className="h-3 w-3 text-white/20" />
+                  )}
+                </div>
+
+                {/* Exercise Cards */}
+                <div className="space-y-3">
+                  {tierExercises.map((exercise) => {
+                    const locked = isLocked(exercise);
+                    const completed = completedSlugs.has(exercise.slug);
+
+                    if (locked) {
+                      return (
                         <div
-                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl"
-                          style={{
-                            background:
-                              exercise.category === "somatic"
-                                ? "rgba(196,149,106,0.06)"
-                                : "rgba(255,255,255,0.03)",
-                          }}
+                          key={exercise.slug}
+                          className="glass p-5 opacity-40"
+                          style={{ filter: "grayscale(0.5)" }}
                         >
-                          {exercise.category === "somatic" ? (
-                            <Brain className="h-5 w-5 text-amber-300/40" />
-                          ) : (
-                            <Dumbbell className="h-5 w-5 text-amber-300/40" />
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-base font-normal tracking-wide text-white/75">
-                              {exercise.title}
-                            </h3>
-                            <ChevronRight className="h-4 w-4 text-white/50" />
-                          </div>
-                          <p className="mt-2 text-sm font-light leading-relaxed text-white/45">
-                            {exercise.description}
-                          </p>
-                          <div className="mt-3 flex items-center gap-4">
-                            <span className="flex items-center gap-1.5 text-xs font-light text-white/50">
-                              <Clock className="h-3.5 w-3.5" />
-                              {exercise.duration}
-                            </span>
-                            <span className="text-xs font-light text-white/40">
-                              {exercise.difficulty}
-                            </span>
-                            <span className="text-xs font-light" style={{ color: "rgba(250,204,21,0.4)" }}>
-                              +{exercise.xpReward} XP
-                            </span>
-                            {completed && (
-                              <span className="rounded-full bg-emerald-400/[0.08] px-2 py-0.5 text-xs font-normal text-emerald-400/60">
-                                Completed
-                              </span>
-                            )}
+                          <div className="flex items-start gap-4">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.03]">
+                              <Lock className="h-4 w-4 text-white/40" />
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="text-sm font-normal text-white/40">
+                                {exercise.title}
+                              </h3>
+                              <p className="mt-1 text-xs font-light text-white/30">
+                                Unlocks at Level {exercise.levelUnlock}
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  </Link>
-                )}
+                      );
+                    }
+
+                    return (
+                      <Link key={exercise.slug} href={`/exercises/${exercise.slug}`}>
+                        <div className="glass p-5 transition-all duration-500 hover:border-amber-300/[0.08]">
+                          <div className="flex items-start gap-4">
+                            <div
+                              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+                              style={{ background: "rgba(196,149,106,0.06)" }}
+                            >
+                              {getCategoryIcon(exercise.category)}
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <h3 className="text-sm font-normal tracking-wide text-white/75">
+                                  {exercise.title}
+                                </h3>
+                                <ChevronRight className="h-4 w-4 text-white/50" />
+                              </div>
+                              <p className="mt-1.5 text-xs font-light leading-relaxed text-white/45 line-clamp-2">
+                                {exercise.description}
+                              </p>
+                              <div className="mt-2 flex flex-wrap items-center gap-3">
+                                <span className="flex items-center gap-1 text-xs font-light text-white/50">
+                                  <Clock className="h-3 w-3" />
+                                  {exercise.duration}
+                                </span>
+                                <span className="text-xs font-light text-white/40">
+                                  {exercise.difficulty}
+                                </span>
+                                <span className="text-xs font-light" style={{ color: "rgba(250,204,21,0.4)" }}>
+                                  +{exercise.xpReward} XP
+                                </span>
+                                {completed && (
+                                  <span className="rounded-full bg-emerald-400/[0.08] px-2 py-0.5 text-xs font-normal text-emerald-400/60">
+                                    Done
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
               </motion.div>
             );
           })}
-        </div>
       </motion.main>
 
       <BottomNav activeTab="Practice" />
