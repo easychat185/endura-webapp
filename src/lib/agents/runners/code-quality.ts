@@ -3,13 +3,14 @@ import * as path from "path";
 import { BaseAgent } from "../base-agent";
 import { getCodeQualityPrompt } from "../prompts/code-quality-prompt";
 import type { AgentType, AgentRunParams, AgentActionItem } from "../types";
+import { DEFAULT_AGENT_MODEL } from "@/lib/ai/models";
 
 const MAX_FILE_SIZE = 8000; // chars per file
 const MAX_TOTAL_CONTEXT = 60000; // total chars for all files
 
 export class CodeQualityAgent extends BaseAgent {
   readonly agentType: AgentType = "code-quality";
-  readonly model = "claude-sonnet-4-6";
+  readonly model = DEFAULT_AGENT_MODEL;
   readonly maxTokens = 4096;
   readonly label = "Code Quality";
 

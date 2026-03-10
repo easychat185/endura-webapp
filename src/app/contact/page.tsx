@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Mail, MessageCircle, Shield } from "lucide-react";
 import { fadeUp, staggerContainer } from "@/lib/animations";
 
-const SUPPORT_EMAIL = "support@endura-app.com";
+const SUPPORT_EMAIL = "endura288@gmail.com";
 
 export default function ContactPage() {
   return (
@@ -61,7 +61,7 @@ export default function ContactPage() {
 
           <p className="text-sm font-light leading-relaxed text-white/40 mb-6">
             For support, questions, or feedback — reach out and we&apos;ll get
-            back to you within 24 hours.
+            back to you within 24–48 hours.
           </p>
 
           <a
@@ -75,13 +75,27 @@ export default function ContactPage() {
             <Mail className="h-4 w-4" />
             {SUPPORT_EMAIL}
           </a>
+
+          <div className="mt-6 text-center">
+            <Link
+              href="/#faq"
+              className="text-sm font-light text-amber-200/50 transition-all duration-500 hover:text-amber-200/70"
+            >
+              Check our FAQ for quick answers →
+            </Link>
+          </div>
         </motion.div>
 
-        <motion.div variants={fadeUp} className="mt-8">
+        <motion.div variants={fadeUp} className="mt-8 space-y-3">
           <div className="flex items-center justify-center gap-2 text-xs font-light text-white/40">
             <Shield className="h-3.5 w-3.5 text-amber-300/20" />
             <span>All communications are private &amp; confidential</span>
           </div>
+          <p className="text-center text-xs font-light text-white/30">
+            If you are in crisis, please contact the 988 Suicide &amp; Crisis
+            Lifeline (call or text 988) or Crisis Text Line (text HOME to
+            741741).
+          </p>
         </motion.div>
       </motion.main>
     </div>

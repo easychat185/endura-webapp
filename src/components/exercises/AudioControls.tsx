@@ -18,7 +18,8 @@ export default function AudioControls({ enabled, onToggle }: AudioControlsProps)
           ? "1px solid rgba(196,149,106,0.15)"
           : "1px solid rgba(255,255,255,0.04)",
       }}
-      title={enabled ? "Disable voice guidance" : "Enable voice guidance"}
+      aria-label={enabled ? "Disable voice guidance" : "Enable voice guidance"}
+      aria-pressed={enabled}
     >
       {enabled ? (
         <Volume2 className="h-5 w-5 text-amber-200/70" />

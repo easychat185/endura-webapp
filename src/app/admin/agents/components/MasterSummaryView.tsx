@@ -70,7 +70,7 @@ export function MasterSummaryView({
         <button
           type="button"
           onClick={toggleExpanded}
-          className="rounded-lg px-3 py-1 text-[11px] text-white/50 hover:text-white/60 hover:bg-white/[0.05] transition-all"
+          className="rounded-lg px-3 py-1 text-[0.6875rem] text-white/50 hover:text-white/60 hover:bg-white/[0.05] transition-all"
         >
           {expanded ? "Collapse" : "Expand All"}
         </button>
@@ -78,7 +78,7 @@ export function MasterSummaryView({
 
       {/* Executive Summary — always visible */}
       <div className="mt-4">
-        <h4 className="text-[11px] font-medium text-amber-200/30 uppercase tracking-wider mb-2">
+        <h4 className="text-[0.6875rem] font-medium text-amber-200/50 uppercase tracking-wider mb-2">
           Executive Summary
         </h4>
         <p className="text-xs text-white/45 leading-relaxed whitespace-pre-line">
@@ -93,7 +93,7 @@ export function MasterSummaryView({
           {/* Top Priorities */}
           {priorities.length > 0 && (
             <div>
-              <h4 className="text-[11px] font-medium text-amber-200/30 uppercase tracking-wider mb-3">
+              <h4 className="text-[0.6875rem] font-medium text-amber-200/50 uppercase tracking-wider mb-3">
                 Top Priorities
               </h4>
               <div className="space-y-2">
@@ -108,7 +108,7 @@ export function MasterSummaryView({
                   >
                     <div className="flex items-start gap-3">
                       <span
-                        className="flex h-6 w-6 items-center justify-center rounded-md text-[11px] font-bold shrink-0"
+                        className="flex h-6 w-6 items-center justify-center rounded-md text-[0.6875rem] font-bold shrink-0"
                         style={{
                           background: "rgba(196,149,106,0.1)",
                           color: "rgba(196,149,106,0.7)",
@@ -118,22 +118,22 @@ export function MasterSummaryView({
                       </span>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium text-white/55">{p.title}</p>
-                        <p className="mt-1 text-[11px] text-white/50 leading-relaxed">
+                        <p className="mt-1 text-[0.6875rem] text-white/50 leading-relaxed">
                           {p.description}
                         </p>
                         <div className="mt-2 flex flex-wrap gap-2">
                           {p.effort && (
-                            <span className="rounded px-2 py-0.5 text-[10px] text-white/50" style={{ background: "rgba(255,255,255,0.03)" }}>
+                            <span className="rounded px-2 py-0.5 text-[0.625rem] text-white/50" style={{ background: "rgba(255,255,255,0.03)" }}>
                               Effort: {p.effort}
                             </span>
                           )}
                           {p.impact && (
-                            <span className="rounded px-2 py-0.5 text-[10px] text-white/50" style={{ background: "rgba(255,255,255,0.03)" }}>
+                            <span className="rounded px-2 py-0.5 text-[0.625rem] text-white/50" style={{ background: "rgba(255,255,255,0.03)" }}>
                               Impact: {p.impact}
                             </span>
                           )}
                           {p.category && (
-                            <span className="rounded px-2 py-0.5 text-[10px] text-white/50" style={{ background: "rgba(255,255,255,0.03)" }}>
+                            <span className="rounded px-2 py-0.5 text-[0.625rem] text-white/50" style={{ background: "rgba(255,255,255,0.03)" }}>
                               {p.category}
                             </span>
                           )}
@@ -149,7 +149,7 @@ export function MasterSummaryView({
           {/* Cross-Cutting Patterns */}
           {patterns.length > 0 && (
             <div>
-              <h4 className="text-[11px] font-medium text-amber-200/30 uppercase tracking-wider mb-3">
+              <h4 className="text-[0.6875rem] font-medium text-amber-200/50 uppercase tracking-wider mb-3">
                 Cross-Cutting Patterns
               </h4>
               <div className="space-y-2">
@@ -168,12 +168,12 @@ export function MasterSummaryView({
                       <>
                         <p className="text-xs font-medium text-white/50">{p.pattern}</p>
                         {p.implication && (
-                          <p className="mt-1 text-[11px] text-white/50">{p.implication}</p>
+                          <p className="mt-1 text-[0.6875rem] text-white/50">{p.implication}</p>
                         )}
                         {p.agents?.length > 0 && (
                           <div className="mt-1.5 flex gap-1.5">
                             {p.agents.map((a, j) => (
-                              <span key={j} className="rounded px-1.5 py-0.5 text-[9px] text-white/50" style={{ background: "rgba(255,255,255,0.03)" }}>
+                              <span key={j} className="rounded px-1.5 py-0.5 text-[0.5625rem] text-white/50" style={{ background: "rgba(255,255,255,0.03)" }}>
                                 {a}
                               </span>
                             ))}
@@ -190,7 +190,7 @@ export function MasterSummaryView({
           {/* Strategic Recommendations */}
           {recommendations.length > 0 && (
             <div>
-              <h4 className="text-[11px] font-medium text-amber-200/30 uppercase tracking-wider mb-3">
+              <h4 className="text-[0.6875rem] font-medium text-amber-200/50 uppercase tracking-wider mb-3">
                 Strategic Recommendations
               </h4>
               <div className="space-y-2">
@@ -211,7 +211,7 @@ export function MasterSummaryView({
                           <p className="text-xs font-medium text-white/50">{r.title}</p>
                           {r.timeframe && (
                             <span
-                              className="rounded px-1.5 py-0.5 text-[9px] font-medium"
+                              className="rounded px-1.5 py-0.5 text-[0.5625rem] font-medium"
                               style={{
                                 background:
                                   r.timeframe === "immediate"
@@ -231,11 +231,11 @@ export function MasterSummaryView({
                             </span>
                           )}
                         </div>
-                        <p className="mt-1 text-[11px] text-white/50 leading-relaxed">
+                        <p className="mt-1 text-[0.6875rem] text-white/50 leading-relaxed">
                           {r.description}
                         </p>
                         {r.expectedImpact && (
-                          <p className="mt-1 text-[10px] text-emerald-400/30">
+                          <p className="mt-1 text-[0.625rem] text-emerald-400/30">
                             Expected: {r.expectedImpact}
                           </p>
                         )}
@@ -250,7 +250,7 @@ export function MasterSummaryView({
           {/* Conflicts */}
           {conflicts.length > 0 && (
             <div>
-              <h4 className="text-[11px] font-medium text-amber-200/30 uppercase tracking-wider mb-3">
+              <h4 className="text-[0.6875rem] font-medium text-amber-200/50 uppercase tracking-wider mb-3">
                 Conflicts Between Agents
               </h4>
               <div className="space-y-2">
@@ -268,11 +268,11 @@ export function MasterSummaryView({
                     ) : (
                       <>
                         <p className="text-xs text-red-300/50">{c.issue}</p>
-                        <p className="mt-1 text-[11px] text-white/50">
+                        <p className="mt-1 text-[0.6875rem] text-white/50">
                           Resolution: {c.resolution}
                         </p>
                         {c.agents?.length > 0 && (
-                          <p className="mt-1 text-[10px] text-white/15">
+                          <p className="mt-1 text-[0.625rem] text-white/50">
                             Agents: {c.agents.join(", ")}
                           </p>
                         )}
@@ -287,7 +287,7 @@ export function MasterSummaryView({
           {/* Gaps */}
           {gaps.length > 0 && (
             <div>
-              <h4 className="text-[11px] font-medium text-amber-200/30 uppercase tracking-wider mb-3">
+              <h4 className="text-[0.6875rem] font-medium text-amber-200/50 uppercase tracking-wider mb-3">
                 Identified Gaps
               </h4>
               <div className="space-y-2">
@@ -305,8 +305,8 @@ export function MasterSummaryView({
                     ) : (
                       <>
                         <p className="text-xs font-medium text-yellow-300/50">{g.area}</p>
-                        <p className="mt-1 text-[11px] text-white/50">{g.description}</p>
-                        <p className="mt-1 text-[11px] text-white/50">
+                        <p className="mt-1 text-[0.6875rem] text-white/50">{g.description}</p>
+                        <p className="mt-1 text-[0.6875rem] text-white/50">
                           Rec: {g.recommendation}
                         </p>
                       </>

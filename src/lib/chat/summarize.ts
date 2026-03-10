@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { SUMMARY_MODEL } from "@/lib/ai/models";
 
 const anthropic = new Anthropic();
 
@@ -10,7 +11,7 @@ export async function summarizeSession(
     .join("\n\n");
 
   const response = await anthropic.messages.create({
-    model: "claude-haiku-4-5-20251001",
+    model: SUMMARY_MODEL,
     max_tokens: 300,
     system:
       "You are a clinical note taker. Summarize the following therapy session in 2-3 sentences. Capture: key topics discussed, exercises prescribed, user's emotional state, and any progress signals. Be concise and factual.",

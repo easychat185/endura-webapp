@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { timingSafeEqual } from "crypto";
+import { createHmac } from "crypto";
 import { signAdminToken } from "@/lib/agents/admin-token";
+
+function hmacDigest(value: string): Buffer {
+  return createHmac("sha256", "endura-auth").update(value).digest();
+}
 
 export async function POST(request: NextRequest) {
   const expected = process.env.AGENT_ADMIN_SECRET;
@@ -22,10 +26,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const a = Buffer.from(String(secret));
-    const b = Buffer.from(expected);
+    const { timingSafeEqual } = await import("crypto");
+    const a = hmacDigest(String(secret));
+    const b = hmacDigest(expected);
 
-    if (a.length !== b.length || !timingSafeEqual(a, b)) {
+    if (!timingSafeEqual(a, b)) {
       return NextResponse.json(
         { error: "Invalid secret" },
         { status: 401 }

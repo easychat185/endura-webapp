@@ -11,8 +11,19 @@ import { ActionItemList } from "./components/ActionItemList";
 import { ReportViewer } from "./components/ReportViewer";
 import { AgentTriggerPanel } from "./components/AgentTriggerPanel";
 
+interface AgentRun {
+  id: string;
+  agent_type: string;
+  status: string;
+  cost_usd: number;
+  duration_ms: number;
+  total_tokens: number;
+  created_at: string;
+  error?: string;
+}
+
 interface DashboardData {
-  latestRuns: Record<string, unknown>;
+  latestRuns: Record<string, AgentRun | null>;
   totalRuns: number;
   actionItemsByStatus: Record<string, number>;
   costs: {
@@ -20,7 +31,16 @@ interface DashboardData {
     thirtyDay: number;
     perAgent: Record<string, number>;
   };
-  latestSummary: unknown;
+  latestSummary: {
+    id: string;
+    summary_date: string;
+    executive_summary: string;
+    cross_cutting_patterns: { pattern: string; agents: string[]; implication: string }[] | string[];
+    top_priorities: { rank?: number; title: string; description: string; effort: string; impact: string; category?: string }[];
+    conflicts: { agents: string[]; issue: string; resolution: string }[] | string[];
+    gaps: { area: string; description: string; recommendation: string }[] | string[];
+    strategic_recommendations: { title: string; description: string; timeframe: string; expectedImpact?: string }[] | string[];
+  } | null;
 }
 
 export default function AgentDashboard() {
@@ -32,6 +52,7 @@ export default function AgentDashboard() {
   const [secretInput, setSecretInput] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
   const [runningAgents, setRunningAgents] = useState<Set<string>>(new Set());
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!authenticated) return;
@@ -53,6 +74,9 @@ export default function AgentDashboard() {
         }
         throw new Error("Failed to load dashboard");
       }
+
+      if (!reportsRes.ok) throw new Error("Failed to load reports");
+      if (!itemsRes.ok) throw new Error("Failed to load action items");
 
       const [dashData, reportsData, itemsData] = await Promise.all([
         dashRes.json(),
@@ -87,12 +111,14 @@ export default function AgentDashboard() {
             fetch("/api/agents/reports?limit=20"),
             fetch("/api/agents/action-items?limit=100"),
           ]);
-          const [reportsData, itemsData] = await Promise.all([
-            reportsRes.json(),
-            itemsRes.json(),
-          ]);
-          setReports(reportsData.reports ?? []);
-          setActionItems(itemsData.actionItems ?? []);
+          if (reportsRes.ok) {
+            const reportsData = await reportsRes.json();
+            setReports(reportsData.reports ?? []);
+          }
+          if (itemsRes.ok) {
+            const itemsData = await itemsRes.json();
+            setActionItems(itemsData.actionItems ?? []);
+          }
           setLoading(false);
         } else {
           setLoading(false);
@@ -103,15 +129,16 @@ export default function AgentDashboard() {
   }, []);
 
   useEffect(() => {
-    // Only auto-fetch after login, not on initial probe
-    if (authenticated && probed) {
+    // Only auto-fetch after login, not on initial probe (probe already loaded data)
+    if (authenticated && probed && !data) {
       fetchData();
     }
-  }, [authenticated, fetchData, probed]);
+  }, [authenticated, fetchData, probed, data]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setIsLoggingIn(true);
     try {
       const res = await fetch("/api/admin/auth", {
         method: "POST",
@@ -125,6 +152,8 @@ export default function AgentDashboard() {
       setAuthenticated(true);
     } catch {
       setError("Failed to authenticate");
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -150,7 +179,8 @@ export default function AgentDashboard() {
 
       await fetchData();
     } catch {
-      setError("Failed to run agent. Please try again.");
+      const label = agentType === "master-coordinator" ? "Master Coordinator" : agentType;
+      setError(`Failed to run ${label}. Please try again.`);
     } finally {
       setRunningAgents((prev) => {
         const next = new Set(prev);
@@ -173,20 +203,23 @@ export default function AgentDashboard() {
             value={secretInput}
             onChange={(e) => setSecretInput(e.target.value)}
             placeholder="Admin secret"
-            className="w-full rounded-xl px-4 py-3 text-sm bg-white/[0.04] border border-white/[0.08] text-white/70 placeholder:text-white/40 focus:outline-none focus:border-amber-400/60 focus:ring-2 focus:ring-amber-400/30"
+            aria-invalid={!!error}
+            aria-describedby={error ? "login-error" : undefined}
+            className="w-full rounded-xl px-4 py-3 text-sm bg-white/[0.04] border border-white/[0.08] text-white/70 placeholder:text-white/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/40 focus-visible:ring-offset-1 focus-visible:ring-offset-[#080808] focus:border-amber-400/60"
           />
           {error && (
-            <p className="text-xs text-red-400/60 text-center">{error}</p>
+            <p id="login-error" role="alert" className="text-xs text-red-400/60 text-center">{error}</p>
           )}
           <button
             type="submit"
-            className="w-full rounded-xl px-4 py-3 text-sm font-medium text-amber-200/70"
+            disabled={isLoggingIn}
+            className="w-full rounded-xl px-4 py-3 text-sm font-medium text-amber-200/70 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               background: "rgba(196,149,106,0.1)",
               border: "1px solid rgba(196,149,106,0.15)",
             }}
           >
-            Login
+            {isLoggingIn ? "Logging in..." : "Login"}
           </button>
         </form>
       </div>
@@ -201,7 +234,7 @@ export default function AgentDashboard() {
       cost30d={data?.costs.thirtyDay ?? 0}
     />,
     <div key="agent-grid">
-      <h2 className="mb-3 text-[11px] font-medium text-white/50 uppercase tracking-[0.2em]">
+      <h2 className="mb-3 text-[0.6875rem] font-medium text-white/50 uppercase tracking-[0.2em]">
         Agents
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -209,12 +242,7 @@ export default function AgentDashboard() {
           <AgentRunCard
             key={agentType}
             agentType={agentType}
-            run={
-              (data?.latestRuns[agentType] as Record<
-                string,
-                unknown
-              >) as never
-            }
+            run={data?.latestRuns[agentType] ?? null}
             onRunNow={() => runAgent(agentType)}
             isRunning={runningAgents.has(agentType)}
           />
@@ -222,7 +250,7 @@ export default function AgentDashboard() {
       </div>
     </div>,
     <AgentTriggerPanel key="trigger-panel" onComplete={fetchData} />,
-    <MasterSummaryView key="summary" summary={data?.latestSummary as never} />,
+    <MasterSummaryView key="summary" summary={data?.latestSummary ?? null} />,
     <ActionItemList key="action-items" items={actionItems} onUpdate={fetchData} />,
     <ReportViewer key="reports" reports={reports} />,
   ];

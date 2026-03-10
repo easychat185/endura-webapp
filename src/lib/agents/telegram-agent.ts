@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { getAdminClient } from "./supabase-admin";
 import { SPECIALIZED_AGENT_TYPES } from "./types";
+import { DEFAULT_AGENT_MODEL } from "@/lib/ai/models";
 
 const anthropic = new Anthropic();
 
@@ -66,7 +67,7 @@ export async function handleTelegramMessage(
   const context = await getAgentContext();
 
   const response = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
+    model: DEFAULT_AGENT_MODEL,
     max_tokens: 2048,
     system: SYSTEM_PROMPT + "\n\n## Full Agent Reports & Data\n" + context,
     messages: history,

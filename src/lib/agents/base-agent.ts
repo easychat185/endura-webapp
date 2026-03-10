@@ -10,9 +10,9 @@ import type {
   AgentActionItem,
 } from "./types";
 
-const anthropic = new Anthropic();
+import { SUMMARY_MODEL } from "@/lib/ai/models";
 
-const SUMMARY_MODEL = "claude-haiku-4-5-20251001";
+const anthropic = new Anthropic();
 const NON_RETRYABLE_CODES = [400, 401, 403];
 
 export abstract class BaseAgent {

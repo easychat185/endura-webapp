@@ -3,10 +3,11 @@ import * as path from "path";
 import { BaseAgent } from "../base-agent";
 import { getDrMayaKnowledgePrompt } from "../prompts/dr-maya-knowledge-prompt";
 import type { AgentType, AgentRunParams, AgentActionItem } from "../types";
+import { DEFAULT_AGENT_MODEL } from "@/lib/ai/models";
 
 export class DrMayaKnowledgeAgent extends BaseAgent {
   readonly agentType: AgentType = "dr-maya-knowledge";
-  readonly model = "claude-sonnet-4-6";
+  readonly model = DEFAULT_AGENT_MODEL;
   readonly maxTokens = 4096;
   readonly label = "Dr. Maya Knowledge";
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/agents/supabase-admin";
 import { requireAdminAuth } from "@/lib/agents/admin-auth";
 import { parsePositiveInt } from "@/lib/validation";
+import { ALL_AGENT_TYPES } from "@/lib/agents/types";
 
 export async function GET(request: NextRequest) {
   const authErr = requireAdminAuth(request);
@@ -13,6 +14,15 @@ export async function GET(request: NextRequest) {
     const minPriority = searchParams.get("minPriority");
     const limit = parsePositiveInt(searchParams.get("limit"), 20, 100);
     const offset = parsePositiveInt(searchParams.get("offset"), 0, 10000);
+
+    if (agentType && !ALL_AGENT_TYPES.includes(agentType as typeof ALL_AGENT_TYPES[number])) {
+      return NextResponse.json({ error: "Invalid agentType" }, { status: 400 });
+    }
+
+    const parsedMinPriority = minPriority ? parsePositiveInt(minPriority, -1, 10) : null;
+    if (minPriority && parsedMinPriority === -1) {
+      return NextResponse.json({ error: "Invalid minPriority" }, { status: 400 });
+    }
 
     const supabase = getAdminClient();
 

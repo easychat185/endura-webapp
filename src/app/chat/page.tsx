@@ -540,14 +540,30 @@ export default function ChatPage() {
       >
         <div className="mx-auto flex max-w-2xl flex-col gap-1">
           {initializing ? (
-            <div className="flex items-center justify-center py-20">
-              <div
-                className="h-8 w-8 animate-spin rounded-full border-2 border-transparent"
-                style={{
-                  borderTopColor: "rgba(196,149,106,0.4)",
-                  borderRightColor: "rgba(196,149,106,0.1)",
-                }}
-              />
+            <div className="flex flex-col gap-4 py-6">
+              {/* Skeleton: Maya message */}
+              <div className="flex items-end gap-2.5 self-start">
+                <div className="h-8 w-8 shrink-0 rounded-full bg-white/[0.04] animate-pulse" />
+                <div className="space-y-2">
+                  <div className="h-4 w-48 rounded-xl bg-white/[0.04] animate-pulse" />
+                  <div className="h-4 w-36 rounded-xl bg-white/[0.04] animate-pulse" />
+                </div>
+              </div>
+              {/* Skeleton: User message */}
+              <div className="flex items-end gap-2.5 self-end flex-row-reverse">
+                <div className="space-y-2">
+                  <div className="h-4 w-40 rounded-xl bg-amber-200/[0.04] animate-pulse" />
+                </div>
+              </div>
+              {/* Skeleton: Maya reply */}
+              <div className="flex items-end gap-2.5 self-start">
+                <div className="h-8 w-8 shrink-0 rounded-full bg-white/[0.04] animate-pulse" />
+                <div className="space-y-2">
+                  <div className="h-4 w-56 rounded-xl bg-white/[0.04] animate-pulse" />
+                  <div className="h-4 w-44 rounded-xl bg-white/[0.04] animate-pulse" />
+                  <div className="h-4 w-32 rounded-xl bg-white/[0.04] animate-pulse" />
+                </div>
+              </div>
             </div>
           ) : initError ? (
             <div className="flex flex-col items-center justify-center py-20 text-center px-6">

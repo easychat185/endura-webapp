@@ -3,13 +3,14 @@ import * as path from "path";
 import { BaseAgent } from "../base-agent";
 import { getUiUxPrompt } from "../prompts/ui-ux-prompt";
 import type { AgentType, AgentRunParams, AgentActionItem } from "../types";
+import { DEFAULT_AGENT_MODEL } from "@/lib/ai/models";
 
 const MAX_FILE_SIZE = 8000;
 const MAX_TOTAL_CONTEXT = 60000;
 
 export class UiUxAgent extends BaseAgent {
   readonly agentType: AgentType = "ui-ux";
-  readonly model = "claude-sonnet-4-6";
+  readonly model = DEFAULT_AGENT_MODEL;
   readonly maxTokens = 4096;
   readonly label = "UI/UX Analysis";
 

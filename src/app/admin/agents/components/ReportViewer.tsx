@@ -12,21 +12,30 @@ interface Report {
 }
 
 // Recursively render any JSON value as readable UI
-function RenderValue({ value, depth = 0 }: { value: unknown; depth?: number }) {
+function RenderValue({ value, depth = 0, maxDepth = 5 }: { value: unknown; depth?: number; maxDepth?: number }) {
   if (value === null || value === undefined) {
-    return <span className="text-white/40 italic">—</span>;
+    return <span className="text-white/60 italic">—</span>;
+  }
+
+  if (depth >= maxDepth) {
+    return (
+      <pre className="text-xs text-white/60 whitespace-pre-wrap break-all">
+        {JSON.stringify(value, null, 2).slice(0, 500)}
+        {JSON.stringify(value).length > 500 ? "…" : ""}
+      </pre>
+    );
   }
 
   if (typeof value === "string") {
     // Multi-line strings
     if (value.includes("\n")) {
       return (
-        <p className="text-xs text-white/40 leading-relaxed whitespace-pre-line">
+        <p className="text-xs text-white/60 leading-relaxed whitespace-pre-line">
           {value}
         </p>
       );
     }
-    return <span className="text-xs text-white/40">{value}</span>;
+    return <span className="text-xs text-white/60">{value}</span>;
   }
 
   if (typeof value === "number" || typeof value === "boolean") {
@@ -34,15 +43,15 @@ function RenderValue({ value, depth = 0 }: { value: unknown; depth?: number }) {
   }
 
   if (Array.isArray(value)) {
-    if (value.length === 0) return <span className="text-white/40 italic text-xs">empty</span>;
+    if (value.length === 0) return <span className="text-white/60 italic text-xs">empty</span>;
 
     // Array of strings — render as bullet list
     if (value.every((v) => typeof v === "string")) {
       return (
         <ul className="space-y-1 pl-1">
           {value.map((item, i) => (
-            <li key={i} className="flex gap-2 text-xs text-white/40">
-              <span className="text-white/40 shrink-0">-</span>
+            <li key={i} className="flex gap-2 text-xs text-white/60">
+              <span className="text-white/60 shrink-0">-</span>
               <span className="leading-relaxed">{item}</span>
             </li>
           ))}
@@ -80,7 +89,7 @@ function RenderValue({ value, depth = 0 }: { value: unknown; depth?: number }) {
           if (typeof val === "string" && !val.includes("\n") && val.length < 120) {
             return (
               <div key={key} className="flex gap-2 items-baseline flex-wrap">
-                <span className="text-[11px] font-medium text-white/50 shrink-0 min-w-[80px]">
+                <span className="text-[0.6875rem] font-medium text-white/50 shrink-0 min-w-[80px]">
                   {label}:
                 </span>
                 <RenderValue value={val} depth={depth + 1} />
@@ -91,7 +100,7 @@ function RenderValue({ value, depth = 0 }: { value: unknown; depth?: number }) {
           if (typeof val === "number" || typeof val === "boolean") {
             return (
               <div key={key} className="flex gap-2 items-baseline">
-                <span className="text-[11px] font-medium text-white/50 shrink-0 min-w-[80px]">
+                <span className="text-[0.6875rem] font-medium text-white/50 shrink-0 min-w-[80px]">
                   {label}:
                 </span>
                 <RenderValue value={val} depth={depth + 1} />
@@ -102,7 +111,7 @@ function RenderValue({ value, depth = 0 }: { value: unknown; depth?: number }) {
           // Complex value — render as block
           return (
             <div key={key}>
-              <p className="text-[11px] font-medium text-white/50 uppercase tracking-wider mb-1.5">
+              <p className="text-[0.6875rem] font-medium text-white/50 uppercase tracking-wider mb-1.5">
                 {label}
               </p>
               <div className="pl-2 border-l border-white/[0.04]">
@@ -154,6 +163,7 @@ export function ReportViewer({
     if (expandedId === id) {
       setExpandedId(null);
       setFullReport(null);
+      setLoadingReport(false);
       return;
     }
 
@@ -199,7 +209,7 @@ export function ReportViewer({
       <div className="mt-4 space-y-4">
         {Object.entries(grouped).map(([agentType, agentReports]) => (
           <div key={agentType}>
-            <h4 className="text-[11px] font-medium text-white/40 uppercase tracking-wider mb-2">
+            <h4 className="text-[0.6875rem] font-medium text-white/60 uppercase tracking-wider mb-2">
               {AGENT_LABELS[agentType as keyof typeof AGENT_LABELS] ?? agentType}
             </h4>
 
@@ -216,17 +226,27 @@ export function ReportViewer({
                         {new Date(report.created_at).toLocaleDateString()}{" "}
                         {new Date(report.created_at).toLocaleTimeString()}
                       </span>
-                      <span className="text-[10px] text-white/40">
+                      <span className="text-[0.625rem] text-white/60">
                         {expandedId === report.id ? "Collapse" : "Expand"}
                       </span>
                     </div>
-                    <p className="mt-1 text-[11px] text-white/50 line-clamp-2">
+                    <p className="mt-1 text-[0.6875rem] text-white/50 line-clamp-2">
                       {report.summary}
                     </p>
                   </button>
 
                   {expandedId === report.id && (
                     <div
+                      tabIndex={0}
+                      role="region"
+                      aria-label="Report details"
+                      onKeyDown={(e) => {
+                        if (e.key === "Escape") {
+                          setExpandedId(null);
+                          setFullReport(null);
+                          setLoadingReport(false);
+                        }
+                      }}
                       className="mt-1 rounded-xl p-4 max-h-[500px] overflow-y-auto"
                       style={{
                         background: "rgba(0,0,0,0.2)",
@@ -234,11 +254,11 @@ export function ReportViewer({
                       }}
                     >
                       {loadingReport ? (
-                        <p className="text-[11px] text-white/40">Loading report...</p>
+                        <p className="text-[0.6875rem] text-white/60">Loading report...</p>
                       ) : fullReport ? (
                         <RenderValue value={fullReport} />
                       ) : (
-                        <p className="text-[11px] text-white/40">
+                        <p className="text-[0.6875rem] text-white/60">
                           Could not load report.
                         </p>
                       )}
@@ -251,7 +271,7 @@ export function ReportViewer({
         ))}
 
         {reports.length === 0 && (
-          <p className="text-xs text-white/40 py-4 text-center">
+          <p className="text-xs text-white/60 py-4 text-center">
             No reports yet. Run an agent to generate one.
           </p>
         )}

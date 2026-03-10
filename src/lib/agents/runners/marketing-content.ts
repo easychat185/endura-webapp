@@ -1,10 +1,11 @@
 import { BaseAgent } from "../base-agent";
 import { getMarketingContentPrompt } from "../prompts/marketing-content-prompt";
 import type { AgentType, AgentRunParams, AgentActionItem } from "../types";
+import { DEFAULT_AGENT_MODEL } from "@/lib/ai/models";
 
 export class MarketingContentAgent extends BaseAgent {
   readonly agentType: AgentType = "marketing-content";
-  readonly model = "claude-sonnet-4-6";
+  readonly model = DEFAULT_AGENT_MODEL;
   readonly maxTokens = 4096;
   readonly label = "Marketing Content";
   protected temperature = 0.7;

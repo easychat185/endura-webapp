@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/agents/supabase-admin";
 import { requireAdminAuth } from "@/lib/agents/admin-auth";
 import { isValidUUID, parsePositiveInt } from "@/lib/validation";
+import { ALL_AGENT_TYPES } from "@/lib/agents/types";
+
+const VALID_STATUSES = ["open", "in_progress", "completed", "dismissed"] as const;
 
 export async function GET(request: NextRequest) {
   const authErr = requireAdminAuth(request);
@@ -14,6 +17,16 @@ export async function GET(request: NextRequest) {
     const minPriority = searchParams.get("minPriority");
     const limit = parsePositiveInt(searchParams.get("limit"), 50, 100);
     const offset = parsePositiveInt(searchParams.get("offset"), 0, 10000);
+
+    if (status && !VALID_STATUSES.includes(status as typeof VALID_STATUSES[number])) {
+      return NextResponse.json({ error: `Invalid status. Valid: ${VALID_STATUSES.join(", ")}` }, { status: 400 });
+    }
+    if (agentType && !ALL_AGENT_TYPES.includes(agentType as typeof ALL_AGENT_TYPES[number])) {
+      return NextResponse.json({ error: "Invalid agentType" }, { status: 400 });
+    }
+    if (minPriority && parsePositiveInt(minPriority, -1, 10) === -1) {
+      return NextResponse.json({ error: "Invalid minPriority" }, { status: 400 });
+    }
 
     const supabase = getAdminClient();
 

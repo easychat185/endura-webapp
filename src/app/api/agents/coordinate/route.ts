@@ -11,11 +11,15 @@ export async function POST(request: NextRequest) {
     const result = await coordinator.run({});
 
     if (result.status === "completed" && result.report) {
-      await coordinator.saveDailySummary(
-        result.report.data,
-        [result.runId],
-        result.tokenUsage.costUsd
-      );
+      try {
+        await coordinator.saveDailySummary(
+          result.report.data,
+          [result.runId],
+          result.tokenUsage.costUsd
+        );
+      } catch (summaryErr) {
+        console.error("Failed to save daily summary (agent run succeeded):", summaryErr);
+      }
     }
 
     return NextResponse.json(result);

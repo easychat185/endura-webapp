@@ -32,16 +32,20 @@ export function TokenUsageChart({
     >
       <h3 className="text-sm font-medium text-white/60">Token Usage & Costs</h3>
 
-      <div className="mt-3 flex gap-6 text-xs text-white/35">
+      <div className="mt-3 flex gap-6 text-xs text-white/60">
         <span>7d: <span className="text-white/60">${cost7d.toFixed(4)}</span></span>
         <span>30d: <span className="text-white/60">${cost30d.toFixed(4)}</span></span>
       </div>
 
       {/* Bar chart */}
-      <div className="mt-5 space-y-2.5">
+      <div
+        className="mt-5 space-y-2.5"
+        role="img"
+        aria-label={`Token cost breakdown: 7-day total $${cost7d.toFixed(4)}, 30-day total $${cost30d.toFixed(4)}. ${Object.entries(costPerAgent).map(([agent, cost]) => `${AGENT_SHORT_LABELS[agent as keyof typeof AGENT_SHORT_LABELS] ?? agent}: $${cost.toFixed(4)}`).join(", ")}`}
+      >
         {Object.entries(costPerAgent).map(([agent, cost]) => (
           <div key={agent} className="flex items-center gap-3">
-            <span className="w-16 text-[10px] text-white/50 text-right">
+            <span className="w-16 text-[0.625rem] text-white/50 text-right">
               {AGENT_SHORT_LABELS[agent as keyof typeof AGENT_SHORT_LABELS] ?? agent}
             </span>
             <div className="flex-1 h-4 rounded bg-white/[0.03] overflow-hidden">
@@ -53,7 +57,7 @@ export function TokenUsageChart({
                 }}
               />
             </div>
-            <span className="w-14 text-[10px] text-white/45 text-right">
+            <span className="w-14 text-[0.625rem] text-white/45 text-right">
               ${cost.toFixed(4)}
             </span>
           </div>

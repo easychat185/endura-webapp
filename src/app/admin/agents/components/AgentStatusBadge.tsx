@@ -26,7 +26,7 @@ export function AgentStatusBadge({ status }: { status: string | null }) {
 
   const c = config[status ?? ""] ?? {
     bg: "rgba(148,163,184,0.1)",
-    text: "text-slate-400/50",
+    text: "text-slate-400",
     label: "Never Run",
   };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 interface ActionItem {
   id: string;
@@ -27,7 +27,18 @@ export function ActionItemList({
   const [activeTab, setActiveTab] = useState<string>("open");
   const [updating, setUpdating] = useState<string | null>(null);
 
-  const filtered = items.filter((item) => item.status === activeTab);
+  const tabCounts = useMemo(() => {
+    const counts: Record<string, number> = { open: 0, in_progress: 0, completed: 0, dismissed: 0 };
+    for (const item of items) {
+      if (item.status in counts) counts[item.status]++;
+    }
+    return counts;
+  }, [items]);
+
+  const filteredSorted = useMemo(
+    () => items.filter((item) => item.status === activeTab).sort((a, b) => b.priority - a.priority),
+    [items, activeTab]
+  );
 
   const updateStatus = async (id: string, newStatus: string) => {
     setUpdating(id);
@@ -64,15 +75,17 @@ export function ActionItemList({
       {/* Tabs */}
       <div className="mt-3 flex gap-1">
         {STATUS_TABS.map((tab) => {
-          const count = items.filter((i) => i.status === tab).length;
+          const count = tabCounts[tab] ?? 0;
           return (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`rounded-lg px-3 py-2.5 min-h-[44px] text-[11px] font-medium transition-all ${
+              className={`rounded-lg px-3 py-2.5 min-h-[44px] text-[0.6875rem] font-medium transition-all ${
                 activeTab === tab
                   ? "bg-white/[0.08] text-white/70"
-                  : "text-white/50 hover:text-white/60"
+                  : count === 0
+                    ? "text-white/30"
+                    : "text-white/50 hover:text-white/60"
               }`}
             >
               {tab.replace("_", " ")} ({count})
@@ -83,15 +96,13 @@ export function ActionItemList({
 
       {/* List */}
       <div className="mt-4 space-y-2 max-h-80 overflow-y-auto">
-        {filtered.length === 0 && (
-          <p className="text-xs text-white/40 py-4 text-center">
+        {filteredSorted.length === 0 && (
+          <p className="text-xs text-white/60 py-4 text-center">
             No {activeTab.replace("_", " ")} items
           </p>
         )}
 
-        {[...filtered]
-          .sort((a, b) => b.priority - a.priority)
-          .map((item) => (
+        {filteredSorted.map((item) => (
             <div
               key={item.id}
               className="rounded-xl p-3"
@@ -104,7 +115,7 @@ export function ActionItemList({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span
-                      className="inline-flex h-5 w-5 items-center justify-center rounded text-[10px] font-bold"
+                      className="inline-flex h-5 w-5 items-center justify-center rounded text-[0.625rem] font-bold"
                       style={{
                         background:
                           item.priority >= 8
@@ -127,16 +138,16 @@ export function ActionItemList({
                     </p>
                   </div>
                   {item.description && (
-                    <p className="mt-1 text-[11px] text-white/45 line-clamp-2 pl-7">
+                    <p className="mt-1 text-[0.6875rem] text-white/45 line-clamp-2 pl-7">
                       {item.description}
                     </p>
                   )}
                   <div className="mt-1 flex gap-2 pl-7">
-                    <span className="text-[10px] text-white/40">
+                    <span className="text-[0.625rem] text-white/60">
                       {item.agent_type}
                     </span>
                     {item.category && (
-                      <span className="text-[10px] text-white/40">
+                      <span className="text-[0.625rem] text-white/60">
                         {item.category}
                       </span>
                     )}

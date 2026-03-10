@@ -3,10 +3,11 @@ import { getAdminClient } from "../supabase-admin";
 import { getMasterCoordinatorPrompt } from "../prompts/master-coordinator-prompt";
 import type { AgentType, AgentRunParams, AgentActionItem, DailySummary } from "../types";
 import { SPECIALIZED_AGENT_TYPES } from "../types";
+import { DEFAULT_AGENT_MODEL } from "@/lib/ai/models";
 
 export class MasterCoordinatorAgent extends BaseAgent {
   readonly agentType: AgentType = "master-coordinator";
-  readonly model = "claude-sonnet-4-6";
+  readonly model = DEFAULT_AGENT_MODEL;
   readonly maxTokens = 4096;
   readonly label = "Master Coordinator";
 

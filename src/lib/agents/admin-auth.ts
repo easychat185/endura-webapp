@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { timingSafeEqual } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 import { verifyAdminToken } from "./admin-token";
+
+function hmacDigest(value: string): Buffer {
+  return createHmac("sha256", "endura-auth").update(value).digest();
+}
 
 /**
  * Check if a request has valid admin authentication.
- * - x-admin-secret header: compared via timingSafeEqual against AGENT_ADMIN_SECRET
+ * - x-admin-secret header: compared via HMAC digest + timingSafeEqual against AGENT_ADMIN_SECRET
  * - admin_token cookie: verified via HMAC signature + TTL
  */
 export function checkAdminAuth(request: NextRequest): boolean {
@@ -14,9 +18,7 @@ export function checkAdminAuth(request: NextRequest): boolean {
   // Check header first (raw secret, used by scripts/cron)
   const headerSecret = request.headers.get("x-admin-secret");
   if (headerSecret) {
-    const a = Buffer.from(headerSecret);
-    const b = Buffer.from(expected);
-    return a.length === b.length && timingSafeEqual(a, b);
+    return timingSafeEqual(hmacDigest(headerSecret), hmacDigest(expected));
   }
 
   // Check HMAC-signed cookie (used by browser sessions)

@@ -33,7 +33,8 @@ export async function GET(request: NextRequest) {
         .select("*", { count: "exact", head: true }),
       supabase
         .from("agent_action_items")
-        .select("status, priority, agent_type"),
+        .select("status, priority, agent_type")
+        .limit(1000),
       // Single 30d query — compute 7d subset in JS
       supabase
         .from("agent_runs")

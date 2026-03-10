@@ -1,10 +1,11 @@
 import { BaseAgent } from "../base-agent";
 import { getMarketResearchPrompt } from "../prompts/market-research-prompt";
 import type { AgentType, AgentRunParams, AgentActionItem } from "../types";
+import { DEFAULT_AGENT_MODEL } from "@/lib/ai/models";
 
 export class MarketResearchAgent extends BaseAgent {
   readonly agentType: AgentType = "market-research";
-  readonly model = "claude-sonnet-4-6";
+  readonly model = DEFAULT_AGENT_MODEL;
   readonly maxTokens = 4096;
   readonly label = "Market Research";
 
