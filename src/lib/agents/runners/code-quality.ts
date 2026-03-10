@@ -20,7 +20,7 @@ export class CodeQualityAgent extends BaseAgent {
 
   async buildUserMessage(params: AgentRunParams): Promise<string> {
     const focus = params.focus ?? "full codebase";
-    const projectRoot = process.cwd();
+    const projectRoot = params.projectPath ?? process.cwd();
     const srcDir = path.join(projectRoot, "src");
 
     const files = this.collectFiles(srcDir, [".ts", ".tsx"]);

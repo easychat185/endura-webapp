@@ -20,12 +20,18 @@ export class UiUxAgent extends BaseAgent {
 
   async buildUserMessage(params: AgentRunParams): Promise<string> {
     const focus = params.focus ?? "full UI review";
-    const projectRoot = process.cwd();
+    const projectRoot = params.projectPath ?? process.cwd();
+    const isMobile = !fs.existsSync(path.join(projectRoot, "src", "app"));
 
-    const dirs = [
-      path.join(projectRoot, "src", "app"),
-      path.join(projectRoot, "src", "components"),
-    ];
+    const dirs = isMobile
+      ? [
+          path.join(projectRoot, "app"),
+          path.join(projectRoot, "src", "components"),
+        ]
+      : [
+          path.join(projectRoot, "src", "app"),
+          path.join(projectRoot, "src", "components"),
+        ];
 
     let context = "";
     let totalChars = 0;

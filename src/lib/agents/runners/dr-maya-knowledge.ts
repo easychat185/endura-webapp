@@ -17,7 +17,7 @@ export class DrMayaKnowledgeAgent extends BaseAgent {
 
   async buildUserMessage(params: AgentRunParams): Promise<string> {
     const focus = params.focus ?? "comprehensive knowledge audit";
-    const projectRoot = process.cwd();
+    const projectRoot = params.projectPath ?? process.cwd();
     const promptsDir = path.join(projectRoot, "src", "lib", "prompts");
 
     let context = "";

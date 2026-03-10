@@ -13,8 +13,10 @@ const totalAgents = SPECIALIZED_AGENT_TYPES.length + 1; // +1 for coordinator
 
 export function AgentTriggerPanel({
   onComplete,
+  project,
 }: {
   onComplete: () => void;
+  project: "endura" | "endura-mobile";
 }) {
   const [runningAll, setRunningAll] = useState(false);
   const [progress, setProgress] = useState<ProgressEntry[]>([]);
@@ -48,7 +50,7 @@ export function AgentTriggerPanel({
         const res = await fetch("/api/agents/run", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ agentType }),
+          body: JSON.stringify({ agentType, project: project === "endura-mobile" ? "endura-mobile" : undefined }),
           signal,
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);

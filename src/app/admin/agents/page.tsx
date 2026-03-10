@@ -53,6 +53,7 @@ export default function AgentDashboard() {
   const [authenticated, setAuthenticated] = useState(false);
   const [runningAgents, setRunningAgents] = useState<Set<string>>(new Set());
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [project, setProject] = useState<"endura" | "endura-mobile">("endura-mobile");
 
   const fetchData = useCallback(async () => {
     if (!authenticated) return;
@@ -171,7 +172,7 @@ export default function AgentDashboard() {
           ? {}
           : {
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ agentType }),
+              body: JSON.stringify({ agentType, project: project === "endura-mobile" ? "endura-mobile" : undefined }),
             }),
       });
 
@@ -249,7 +250,7 @@ export default function AgentDashboard() {
         ))}
       </div>
     </div>,
-    <AgentTriggerPanel key="trigger-panel" onComplete={fetchData} />,
+    <AgentTriggerPanel key="trigger-panel" onComplete={fetchData} project={project} />,
     <MasterSummaryView key="summary" summary={data?.latestSummary ?? null} />,
     <ActionItemList key="action-items" items={actionItems} onUpdate={fetchData} />,
     <ReportViewer key="reports" reports={reports} />,
@@ -267,6 +268,21 @@ export default function AgentDashboard() {
             Agent Dashboard
           </h1>
           <div className="flex items-center gap-4">
+            <div className="flex items-center rounded-lg overflow-hidden text-xs" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
+              {(["endura", "endura-mobile"] as const).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setProject(p)}
+                  className="px-3 py-1.5 transition-all duration-200"
+                  style={{
+                    background: project === p ? "rgba(196,149,106,0.15)" : "transparent",
+                    color: project === p ? "rgba(253,230,138,0.8)" : "rgba(255,255,255,0.35)",
+                  }}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
             <span className="text-xs text-white/50">
               {data ? `${data.totalRuns} total runs` : ""}
             </span>

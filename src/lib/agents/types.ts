@@ -92,4 +92,5 @@ export interface DailySummary {
 export interface AgentRunParams {
   depth?: "quick" | "standard" | "deep";
   focus?: string;
+  projectPath?: string; // override project root for file-reading agents (e.g. endura-mobile)
 }
