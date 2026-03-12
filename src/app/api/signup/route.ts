@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { readFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 import { resolve } from "path";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -19,7 +17,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
+    if (!process.env.RESEND_API_KEY) {
+      console.error("RESEND_API_KEY is not set");
+      return NextResponse.json({ error: "Email service not configured" }, { status: 500 });
+    }
+
     // 1. Save to Supabase
+    console.log(`[signup] Saving ${email} to Supabase...`);
     const supaRes = await fetch(`${SUPABASE_URL}/rest/v1/early_access_signups`, {
       method: "POST",
       headers: {
@@ -33,17 +37,39 @@ export async function POST(req: NextRequest) {
 
     if (!supaRes.ok) {
       const data = await supaRes.json().catch(() => null);
+      console.error(`[signup] Supabase error: ${supaRes.status}`, data);
       if (supaRes.status === 409 || data?.code === "23505") {
         return NextResponse.json({ error: "already_registered" }, { status: 409 });
       }
       return NextResponse.json({ error: "Database error" }, { status: 500 });
     }
+    console.log(`[signup] Saved to Supabase OK`);
 
-    // 2. Send the PDF via Resend
-    const pdfPath = resolve(process.cwd(), "endura-program-guide.pdf");
-    const pdfBuffer = readFileSync(pdfPath);
+    // 2. Find the PDF
+    const pdfPaths = [
+      resolve(process.cwd(), "public", "endura-program-guide.pdf"),
+      resolve(process.cwd(), "endura-program-guide.pdf"),
+    ];
 
-    await resend.emails.send({
+    let pdfBuffer: Buffer | null = null;
+    for (const p of pdfPaths) {
+      if (existsSync(p)) {
+        pdfBuffer = readFileSync(p);
+        console.log(`[signup] PDF found at ${p} (${pdfBuffer.length} bytes)`);
+        break;
+      }
+    }
+
+    if (!pdfBuffer) {
+      console.error(`[signup] PDF not found at any path:`, pdfPaths);
+      // Still return success — signup worked, email just won't have attachment
+      return NextResponse.json({ success: true, warning: "PDF not found" });
+    }
+
+    // 3. Send the PDF via Resend
+    console.log(`[signup] Sending email to ${email}...`);
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
       subject: "Your Endura Program Guide is here",
@@ -78,9 +104,19 @@ export async function POST(req: NextRequest) {
       ],
     });
 
+    if (error) {
+      console.error(`[signup] Resend error:`, error);
+      // Signup still succeeded, just email failed
+      return NextResponse.json({ success: true, warning: "Email send failed" });
+    }
+
+    console.log(`[signup] Email sent OK: ${data?.id}`);
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("Signup error:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.error("[signup] Unexpected error:", err);
+    return NextResponse.json(
+      { error: "Internal server error", details: String(err) },
+      { status: 500 }
+    );
   }
 }
