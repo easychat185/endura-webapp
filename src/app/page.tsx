@@ -71,10 +71,6 @@ const testimonials = [
 /*  Main page component                                                */
 /* ------------------------------------------------------------------ */
 
-const SUPABASE_URL = "https://eqnnanygxucdbazyqtrs.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxbm5hbnlneHVjZGJhenlxdHJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyMjQ0MTIsImV4cCI6MjA4ODgwMDQxMn0.oapQSkpooBPhqjg9NaaPgiWKMIZZcNG03LWrjchDFVE";
-
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -87,26 +83,16 @@ export default function Home() {
     if (!allowsMarketing) return;
     setSubmitState("loading");
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/early_access_signups`, {
+      const res = await fetch("/api/signup", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: SUPABASE_ANON_KEY,
-          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-          Prefer: "return=minimal",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, allows_marketing: allowsMarketing }),
       });
-      if (res.status === 409 || res.status === 23505) {
+      if (res.status === 409) {
         setErrorMsg("This email is already registered.");
         setSubmitState("error");
       } else if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        if (data?.code === "23505") {
-          setErrorMsg("This email is already registered.");
-        } else {
-          setErrorMsg("Something went wrong. Please try again.");
-        }
+        setErrorMsg("Something went wrong. Please try again.");
         setSubmitState("error");
       } else {
         setSubmitState("success");
