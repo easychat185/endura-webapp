@@ -77,10 +77,14 @@ export default function Home() {
   const [allowsMarketing, setAllowsMarketing] = useState(false);
   const [submitState, setSubmitState] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [showCheckboxError, setShowCheckboxError] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!allowsMarketing) return;
+    if (!allowsMarketing) {
+      setShowCheckboxError(true);
+      return;
+    }
     setSubmitState("loading");
     try {
       const res = await fetch("/api/signup", {
@@ -605,6 +609,37 @@ export default function Home() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="mx-auto max-w-md">
+                {/* Marketing consent checkbox */}
+                <label
+                  className={`mb-5 flex items-start gap-3 cursor-pointer text-left rounded-lg px-3 py-2 transition-all duration-300 ${
+                    showCheckboxError ? "ring-1 ring-red-400/60 bg-red-400/5" : ""
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={allowsMarketing}
+                    onChange={(e) => {
+                      setAllowsMarketing(e.target.checked);
+                      if (e.target.checked) setShowCheckboxError(false);
+                    }}
+                    className="mt-0.5 h-4 w-4 shrink-0 rounded accent-amber-300/60"
+                  />
+                  <span className={`text-xs font-light leading-relaxed transition-colors duration-300 ${
+                    showCheckboxError ? "text-red-400/70" : "text-white/40"
+                  }`}>
+                    I agree to receive promotional emails and marketing
+                    communications from Endura. You can unsubscribe at any time.
+                    Read our{" "}
+                    <Link
+                      href="/privacy"
+                      className="text-amber-200/60 underline underline-offset-2 hover:text-amber-200/80"
+                    >
+                      Privacy Policy
+                    </Link>
+                    .
+                  </span>
+                </label>
+
                 <div className="flex gap-3">
                   <input
                     type="email"
@@ -620,7 +655,7 @@ export default function Home() {
                   />
                   <button
                     type="submit"
-                    disabled={submitState === "loading" || !allowsMarketing}
+                    disabled={submitState === "loading"}
                     className="shrink-0 rounded-full px-7 py-4 text-sm font-normal tracking-wide text-amber-200/80 backdrop-blur-sm transition-all duration-500 hover:shadow-[0_0_40px_rgba(196,149,106,0.08)] disabled:opacity-40 disabled:cursor-not-allowed sm:text-base"
                     style={{
                       background: "rgba(196,149,106,0.1)",
@@ -630,28 +665,6 @@ export default function Home() {
                     {submitState === "loading" ? "Sending..." : "Send My Guide"}
                   </button>
                 </div>
-
-                {/* Marketing consent checkbox */}
-                <label className="mt-5 flex items-start gap-3 cursor-pointer text-left">
-                  <input
-                    type="checkbox"
-                    checked={allowsMarketing}
-                    onChange={(e) => setAllowsMarketing(e.target.checked)}
-                    className="mt-0.5 h-4 w-4 shrink-0 rounded accent-amber-300/60"
-                  />
-                  <span className="text-xs font-light leading-relaxed text-white/40">
-                    I agree to receive promotional emails and marketing
-                    communications from Endura. You can unsubscribe at any time.
-                    Read our{" "}
-                    <Link
-                      href="/privacy"
-                      className="text-amber-200/60 underline underline-offset-2 hover:text-amber-200/80"
-                    >
-                      Privacy Policy
-                    </Link>
-                    .
-                  </span>
-                </label>
 
                 {submitState === "error" && (
                   <p className="mt-4 text-sm font-light text-red-400/70">
