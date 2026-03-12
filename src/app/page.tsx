@@ -261,11 +261,11 @@ export default function Home() {
                 border: "1px solid rgba(196,149,106,0.15)",
               }}
             >
-              Get Early Access
+              Get Your Free Guide
               <ArrowRight className="h-5 w-5" />
             </button>
             <p className="text-xs font-light text-white/40">
-              Join 2,000+ men who&apos;ve taken control
+              Get the full program guide instantly + app launch updates
             </p>
           </motion.div>
 
@@ -552,8 +552,8 @@ export default function Home() {
             variants={fadeUp}
             className="mx-auto mt-5 max-w-md font-light text-white/40"
           >
-            Join 2,000+ men building real confidence with Dr.&nbsp;Maya.
-            Your first step starts here.
+            Get the complete training guide sent straight to your inbox.
+            Start practicing today — no app needed.
           </motion.p>
           <motion.div variants={fadeUp} className="mt-12">
             <button
@@ -564,7 +564,7 @@ export default function Home() {
                 border: "1px solid rgba(196,149,106,0.15)",
               }}
             >
-              Get Early Access Now
+              Get Your Free Guide
               <ArrowRight className="h-5 w-5" />
             </button>
           </motion.div>
@@ -599,14 +599,14 @@ export default function Home() {
             variants={fadeUp}
             className="text-3xl font-light tracking-wide leading-relaxed text-white/80 sm:text-4xl lg:text-5xl"
           >
-            Get Early Access
+            Get Your Free Program Guide
           </motion.h2>
           <motion.p
             variants={fadeUp}
             className="mx-auto mt-5 max-w-md font-light text-white/40"
           >
-            Be among the first to experience Dr.&nbsp;Maya. Enter your email
-            below and we&apos;ll notify you when we launch.
+            Enter your email and we&apos;ll send you the complete 5-level training guide
+            to start practicing right away. We&apos;ll also keep you posted when the full app goes live.
           </motion.p>
 
           <motion.div variants={fadeUp} className="mt-12">
@@ -614,10 +614,10 @@ export default function Home() {
               <div className="glass mx-auto max-w-md p-8 text-center">
                 <CheckCircle className="mx-auto h-10 w-10 text-amber-300/60" />
                 <p className="mt-4 text-lg font-light text-white/70">
-                  You&apos;re on the list!
+                  Your guide is on its way!
                 </p>
                 <p className="mt-2 text-sm font-light text-white/40">
-                  We&apos;ll reach out when early access is ready.
+                  Check your inbox for the program guide. We&apos;ll also notify you when the full app launches.
                 </p>
               </div>
             ) : (
@@ -644,7 +644,7 @@ export default function Home() {
                       border: "1px solid rgba(196,149,106,0.15)",
                     }}
                   >
-                    {submitState === "loading" ? "Joining..." : "Join"}
+                    {submitState === "loading" ? "Sending..." : "Send My Guide"}
                   </button>
                 </div>
 
