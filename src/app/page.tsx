@@ -88,10 +88,7 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, allows_marketing: allowsMarketing }),
       });
-      if (res.status === 409) {
-        setErrorMsg("This email is already registered.");
-        setSubmitState("error");
-      } else if (!res.ok) {
+      if (!res.ok) {
         setErrorMsg("Something went wrong. Please try again.");
         setSubmitState("error");
       } else {

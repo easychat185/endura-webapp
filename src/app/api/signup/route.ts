@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
     const token = encrypt(JSON.stringify({ email, ts: Date.now() }));
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
+    // Try insert first, if duplicate then update the token
     const supaRes = await fetch(`${SUPABASE_URL}/rest/v1/early_access_signups`, {
       method: "POST",
       headers: {
@@ -44,13 +45,38 @@ export async function POST(req: NextRequest) {
 
     if (!supaRes.ok) {
       const data = await supaRes.json().catch(() => null);
-      console.error(`[signup] Supabase error: ${supaRes.status}`, data);
+      // Duplicate email — update token and resend confirmation
       if (supaRes.status === 409 || data?.code === "23505") {
-        return NextResponse.json({ error: "already_registered" }, { status: 409 });
+        console.log(`[signup] ${email} already exists, updating token...`);
+        const updateRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/early_access_signups?email=eq.${encodeURIComponent(email)}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              apikey: SUPABASE_ANON_KEY,
+              Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+              Prefer: "return=minimal",
+            },
+            body: JSON.stringify({
+              confirmation_token: token,
+              token_expires_at: expiresAt,
+              confirmed: false,
+            }),
+          }
+        );
+        if (!updateRes.ok) {
+          console.error(`[signup] Token update failed:`, await updateRes.text());
+          return NextResponse.json({ error: "Database error" }, { status: 500 });
+        }
+        console.log(`[signup] Token updated for ${email}`);
+      } else {
+        console.error(`[signup] Supabase error: ${supaRes.status}`, data);
+        return NextResponse.json({ error: "Database error" }, { status: 500 });
       }
-      return NextResponse.json({ error: "Database error" }, { status: 500 });
+    } else {
+      console.log(`[signup] Saved to Supabase OK`);
     }
-    console.log(`[signup] Saved to Supabase OK`);
 
     // 2. Build confirmation URL
     const baseUrl = req.nextUrl.origin;
