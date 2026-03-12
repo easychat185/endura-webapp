@@ -1,29 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { readFileSync, existsSync } from "fs";
-import { resolve } from "path";
+import { encrypt } from "@/lib/crypto";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-// TODO: Change to your custom domain once verified in Resend
 const FROM_EMAIL = "Endura <onboarding@resend.dev>";
 
 export async function POST(req: NextRequest) {
   try {
     const { email, allows_marketing } = await req.json();
+    console.log(`[signup] Received signup request for ${email}`);
 
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
     if (!process.env.RESEND_API_KEY) {
-      console.error("RESEND_API_KEY is not set");
+      console.error("[signup] RESEND_API_KEY is not set");
       return NextResponse.json({ error: "Email service not configured" }, { status: 500 });
     }
 
-    // 1. Save to Supabase
-    console.log(`[signup] Saving ${email} to Supabase...`);
+    // 1. Save to Supabase with confirmed=false
+    console.log(`[signup] Saving ${email} to Supabase (unconfirmed)...`);
+    const token = encrypt(JSON.stringify({ email, ts: Date.now() }));
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
     const supaRes = await fetch(`${SUPABASE_URL}/rest/v1/early_access_signups`, {
       method: "POST",
       headers: {
@@ -32,7 +33,13 @@ export async function POST(req: NextRequest) {
         Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
         Prefer: "return=minimal",
       },
-      body: JSON.stringify({ email, allows_marketing }),
+      body: JSON.stringify({
+        email,
+        allows_marketing,
+        confirmed: false,
+        confirmation_token: token,
+        token_expires_at: expiresAt,
+      }),
     });
 
     if (!supaRes.ok) {
@@ -45,72 +52,43 @@ export async function POST(req: NextRequest) {
     }
     console.log(`[signup] Saved to Supabase OK`);
 
-    // 2. Find the PDF
-    const pdfPaths = [
-      resolve(process.cwd(), "public", "endura-program-guide.pdf"),
-      resolve(process.cwd(), "endura-program-guide.pdf"),
-    ];
+    // 2. Build confirmation URL
+    const baseUrl = req.nextUrl.origin;
+    const confirmUrl = `${baseUrl}/api/confirm?token=${encodeURIComponent(token)}`;
+    console.log(`[signup] Confirmation URL: ${confirmUrl}`);
 
-    let pdfBuffer: Buffer | null = null;
-    for (const p of pdfPaths) {
-      if (existsSync(p)) {
-        pdfBuffer = readFileSync(p);
-        console.log(`[signup] PDF found at ${p} (${pdfBuffer.length} bytes)`);
-        break;
-      }
-    }
-
-    if (!pdfBuffer) {
-      console.error(`[signup] PDF not found at any path:`, pdfPaths);
-      // Still return success — signup worked, email just won't have attachment
-      return NextResponse.json({ success: true, warning: "PDF not found" });
-    }
-
-    // 3. Send the PDF via Resend
-    console.log(`[signup] Sending email to ${email}...`);
+    // 3. Send confirmation email (NOT the PDF yet)
+    console.log(`[signup] Sending confirmation email to ${email}...`);
     const resend = new Resend(process.env.RESEND_API_KEY);
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
-      subject: "Your Endura Program Guide is here",
+      subject: "Confirm your email to get the Endura Program Guide",
       html: `
         <div style="font-family: -apple-system, sans-serif; max-width: 520px; margin: 0 auto; padding: 40px 20px; color: #333;">
           <h1 style="font-size: 24px; font-weight: 300; color: #1a1a1a; margin-bottom: 16px;">
-            Welcome to Endura
+            One more step
           </h1>
           <p style="font-size: 16px; line-height: 1.7; color: #555; margin-bottom: 24px;">
-            Thanks for signing up. Attached is your complete program guide —
-            <strong>First Steps to Sexual Mastery</strong> — with 5 levels and
-            15 guided exercises you can start practicing today.
+            Thanks for signing up for Endura. Please confirm your email address
+            to receive your free program guide — <strong>First Steps to Sexual Mastery</strong>.
           </p>
-          <p style="font-size: 16px; line-height: 1.7; color: #555; margin-bottom: 24px;">
-            Take your time with it. Start from Level 1 and work through each
-            exercise at your own pace. Consistency matters more than speed.
-          </p>
-          <p style="font-size: 16px; line-height: 1.7; color: #555; margin-bottom: 24px;">
-            We'll send you another email when the full app is live. Until then,
-            the guide has everything you need to begin.
-          </p>
-          <p style="font-size: 14px; color: #999; margin-top: 40px;">
-            — The Endura Team
+          <a href="${confirmUrl}" style="display: inline-block; background: #b8860b; color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-size: 16px; font-weight: 500;">
+            Confirm my email
+          </a>
+          <p style="font-size: 14px; line-height: 1.7; color: #999; margin-top: 32px;">
+            This link expires in 24 hours. If you didn't sign up for Endura, you can safely ignore this email.
           </p>
         </div>
       `,
-      attachments: [
-        {
-          filename: "Endura-Program-Guide.pdf",
-          content: pdfBuffer,
-        },
-      ],
     });
 
     if (error) {
       console.error(`[signup] Resend error:`, error);
-      // Signup still succeeded, just email failed
-      return NextResponse.json({ success: true, warning: "Email send failed" });
+      return NextResponse.json({ success: true, warning: "Confirmation email failed to send" });
     }
 
-    console.log(`[signup] Email sent OK: ${data?.id}`);
+    console.log(`[signup] Confirmation email sent OK: ${data?.id}`);
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("[signup] Unexpected error:", err);

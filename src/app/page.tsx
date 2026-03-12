@@ -600,10 +600,10 @@ export default function Home() {
               <div className="glass mx-auto max-w-md p-8 text-center">
                 <CheckCircle className="mx-auto h-10 w-10 text-amber-300/60" />
                 <p className="mt-4 text-lg font-light text-white/70">
-                  Your guide is on its way!
+                  Check your inbox!
                 </p>
                 <p className="mt-2 text-sm font-light text-white/40">
-                  Check your inbox for the program guide. We&apos;ll also notify you when the full app launches.
+                  We sent you a confirmation email. Click the link to confirm and receive your free program guide.
                 </p>
               </div>
             ) : (
