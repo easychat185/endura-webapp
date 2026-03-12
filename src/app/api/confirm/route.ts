@@ -4,8 +4,8 @@ import { decrypt } from "@/lib/crypto";
 import { readFileSync, existsSync } from "fs";
 import { resolve } from "path";
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const FROM_EMAIL = "Endura <onboarding@resend.dev>";
 const TOKEN_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
 
