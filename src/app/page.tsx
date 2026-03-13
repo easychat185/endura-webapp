@@ -631,7 +631,7 @@ export default function Home() {
                     communications from Endura. You can unsubscribe at any time.
                     Read our{" "}
                     <Link
-                      href="/privacy"
+                      href="/privacy-landing"
                       className="text-amber-200/60 underline underline-offset-2 hover:text-amber-200/80"
                     >
                       Privacy Policy
@@ -693,7 +693,7 @@ export default function Home() {
           {/* Links */}
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm font-light text-white/40">
             <Link
-              href="/privacy"
+              href="/privacy-landing"
               className="transition-all duration-500 hover:text-white/55"
             >
               Privacy Policy
