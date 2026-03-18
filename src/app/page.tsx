@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -72,6 +72,12 @@ const testimonials = [
 /* ------------------------------------------------------------------ */
 
 export default function Home() {
+  useEffect(() => {
+    fetch("/api/track", { method: "POST" })
+      .then((r) => r.json())
+      .then((d) => { if (d.session_id) sessionStorage.setItem("pv_id", d.session_id); });
+  }, []);
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [allowsMarketing, setAllowsMarketing] = useState(false);
@@ -90,7 +96,7 @@ export default function Home() {
       const res = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, allows_marketing: allowsMarketing }),
+        body: JSON.stringify({ email, allows_marketing: allowsMarketing, page_view_id: sessionStorage.getItem("pv_id") }),
       });
       if (!res.ok) {
         setErrorMsg("Something went wrong. Please try again.");
@@ -604,7 +610,10 @@ export default function Home() {
                   Check your inbox!
                 </p>
                 <p className="mt-2 text-sm font-light text-white/40">
-                  We sent you a confirmation email. Click the link to confirm and receive your free program guide.
+                  We emailed you the link to your free program guide. Click it to open the PDF.
+                </p>
+                <p className="mt-3 text-xs font-light text-white/25">
+                  Don't see it? Check your spam or promotions folder.
                 </p>
               </div>
             ) : (

@@ -63,6 +63,7 @@ export async function GET(req: NextRequest) {
           confirmed: true,
           confirmation_token: null,
           token_expires_at: null,
+          pdf_opened_at: new Date().toISOString(),
         }),
       }
     );

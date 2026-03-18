@@ -8,7 +8,7 @@ const FROM_EMAIL = "Ariel from Endura <ariel@endura.company>";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, allows_marketing } = await req.json();
+    const { email, allows_marketing, page_view_id } = await req.json();
     console.log(`[signup] Received signup request for ${email}`);
 
     if (!email) {
@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
         confirmed: false,
         confirmation_token: token,
         token_expires_at: expiresAt,
+        ...(page_view_id ? { page_view_id } : {}),
       }),
     });
 
@@ -89,20 +90,22 @@ export async function POST(req: NextRequest) {
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
-      subject: "Confirm your email to get the Endura Program Guide",
+      subject: "Your Endura Program Guide",
       html: `
         <div style="font-family: -apple-system, sans-serif; max-width: 520px; margin: 0 auto; padding: 40px 20px; color: #333;">
           <h1 style="font-size: 24px; font-weight: 300; color: #1a1a1a; margin-bottom: 16px;">
-            One more step
+            Here's your program guide
           </h1>
           <p style="font-size: 16px; line-height: 1.7; color: #555; margin-bottom: 24px;">
-            Thanks for signing up for Endura. Please confirm your email address
-            to receive your free program guide — <strong>First Steps to Sexual Mastery</strong>.
+            Thanks for joining Endura. Click below to open your free guide — <strong>First Steps to Sexual Mastery</strong>.
           </p>
           <a href="${confirmUrl}" style="display: inline-block; background: #b8860b; color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-size: 16px; font-weight: 500;">
-            Confirm my email
+            Open my program guide
           </a>
           <p style="font-size: 14px; line-height: 1.7; color: #999; margin-top: 32px;">
+            If this email landed in spam, please mark it as not spam so you don't miss future updates.
+          </p>
+          <p style="font-size: 13px; line-height: 1.7; color: #bbb; margin-top: 12px;">
             This link expires in 24 hours. If you didn't sign up for Endura, you can safely ignore this email.
           </p>
         </div>
