@@ -35,7 +35,7 @@ const SECTIONS = [
   },
   {
     title: "What We Detect",
-    body: `Our system monitors each message for language associated with suicidal ideation and self-harm — including direct expressions of intent, hopelessness framing, and crisis language patterns.\n\nWe do not monitor for general emotional distress. Men talking about feeling frustrated, ashamed, or discouraged about their sexual health are having a normal and important conversation — not a crisis.`,
+    body: `Our system monitors each message for language associated with suicidal ideation and self-harm — including direct expressions of intent to die or harm oneself.\n\nWe do not monitor for general emotional distress. Men talking about feeling frustrated, ashamed, or discouraged about their sexual health are having a normal and important conversation — not a crisis.`,
   },
   {
     title: "What We Don't Do",
